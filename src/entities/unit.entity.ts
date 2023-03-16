@@ -1,4 +1,3 @@
-import { UNIT_STATUS } from "modules/units/units.contants";
 import { Optional } from "sequelize";
 import {
   BelongsTo,
@@ -12,6 +11,13 @@ import {
   UpdatedAt,
 } from "sequelize-typescript";
 import { Level } from "./level.entity";
+
+export const UNIT_STATUS = {
+  NEW: 0,
+  APPROVED: 1,
+  PUBLISHED: 2,
+  HIDE: 3,
+};
 
 export type UnitAttributes = {
   id: number;

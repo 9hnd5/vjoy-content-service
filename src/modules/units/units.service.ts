@@ -2,11 +2,10 @@ import { BaseService, ROLE_CODE } from "@common";
 import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
 import { Level } from "entities/level.entity";
-import { Unit } from "entities/unit.entity";
+import { Unit, UNIT_STATUS } from "entities/unit.entity";
 import { CreateUnitDto } from "./dto/create-unit.dto";
 import { QueryUnitDto } from "./dto/query-unit.dto";
 import { UpdateUnitDto } from "./dto/update-unit.dto";
-import { UNIT_STATUS } from "./units.contants";
 
 @Injectable()
 export class UnitsService extends BaseService {

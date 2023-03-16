@@ -1,5 +1,5 @@
 import { Allow, IsIn, IsJSON, IsNotEmpty, IsOptional } from "class-validator";
-import { UNIT_STATUS } from "../units.contants";
+import { UNIT_STATUS } from "entities/unit.entity";
 
 export class CreateUnitDto {
   @Allow()
@@ -7,7 +7,7 @@ export class CreateUnitDto {
 
   @IsOptional()
   @IsIn(Object.values(UNIT_STATUS))
-  status: number = UNIT_STATUS.NEW;
+  status?: number = UNIT_STATUS.NEW;
 
   @IsNotEmpty()
   levelCode: string;
