@@ -4,6 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import { SequelizeModule } from "@nestjs/sequelize";
 import { camelCase } from "lodash";
 import { LessonModule } from "modules/lesson/lesson.module";
+import { LevelModule } from "modules/level/level.module";
 import { UnitsModule } from "modules/units/units.module";
 import * as path from "path";
 const contentEntityPath = path.join(__dirname, "entities/*.entity*");
@@ -35,6 +36,7 @@ const coreEntityPath = path.join(__dirname, "..", "nest-common-module/entities/*
     }),
     UnitsModule,
     LessonModule,
+    LevelModule,
   ],
   controllers: [],
   providers: [],
