@@ -7,7 +7,7 @@ import { LevelService } from "./level.service";
 export class LevelController {
   constructor(private levelService: LevelService) {}
 
-  @Authorize({ resource: "level", action: "list" })
+  @Authorize({ resource: "levels", action: "list" })
   @Get()
   findAll(@Query() query: FindLevelsQueryDto) {
     return this.levelService.findAll(query);

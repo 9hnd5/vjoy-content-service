@@ -1,11 +1,11 @@
 import { API_TOKEN, createUser, expectError, ROLE_CODE, signin, User } from "@common";
 import { HttpStatus, INestApplication } from "@nestjs/common";
+import { SequelizeModule } from "@nestjs/sequelize";
 import { Test } from "@nestjs/testing";
 import { AppModule } from "app.module";
-import * as request from "supertest";
 import * as crypto from "crypto";
+import * as request from "supertest";
 import { API_CONTENT_PREFIX } from "../test.contants";
-import { SequelizeModule } from "@nestjs/sequelize";
 
 describe("Level E2E test", () => {
   let app: INestApplication;
@@ -58,18 +58,10 @@ describe("Level E2E test", () => {
         .expect((res) => expectError(res.body));
     });
 
-    it("should fail due to user not enough permission", () => {
-      return agent
-        .get(`${API_CONTENT_PREFIX}/levels`)
-        .set("Authorization", `Bearer ${userToken}`)
-        .expect(HttpStatus.FORBIDDEN)
-        .expect((res) => expectError(res.body));
-    });
-
     it("should succeed due to user was authorized", () => {
       return agent
         .get(`${API_CONTENT_PREFIX}/levels`)
-        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Authorization", `Bearer ${userToken}`)
         .expect(HttpStatus.OK)
         .expect((res) => {
           const data = res.body.data;
@@ -81,7 +73,7 @@ describe("Level E2E test", () => {
     it("should return pagination result correctly", () => {
       return agent
         .get(`${API_CONTENT_PREFIX}/levels/?page=1&pageSize=10`)
-        .set("Authorization", `Bearer ${adminToken}`)
+        .set("Authorization", `Bearer ${userToken}`)
         .expect(HttpStatus.OK)
         .expect((res) => {
           const data = res.body.data;
