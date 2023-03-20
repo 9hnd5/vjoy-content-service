@@ -1,5 +1,6 @@
-import { Allow, IsInt, IsOptional } from "class-validator";
 import { QueryDto } from "@common";
+import { Allow, IsIn, IsOptional } from "class-validator";
+import { UNIT_STATUS } from "entities/unit.entity";
 
 export class QueryUnitDto extends QueryDto {
   @IsOptional()
@@ -9,6 +10,6 @@ export class QueryUnitDto extends QueryDto {
   levelCode?: string;
 
   @IsOptional()
-  @IsInt()
+  @IsIn(Object.values(UNIT_STATUS))
   status?: number;
 }
