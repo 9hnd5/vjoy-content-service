@@ -9,7 +9,8 @@ export class LevelService {
   constructor(@InjectModel(Level) private levelModel: typeof Level) {}
 
   findAll(query: FindLevelsQueryDto) {
-    const { ids, code, name, sort: order, limit, offset } = query;
+    const { code, name, ids } = query.filter || {};
+    const { sort: order, limit, offset } = query;
     return this.levelModel.findAndCountAll({
       where: {
         ...(code && { code }),
