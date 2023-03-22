@@ -148,7 +148,7 @@ describe("Lessons E2E Test", () => {
 
     it("Should fail due to invalid query params(page & pageSize & status) value", () => {
       return agent
-        .get(`${API_CONTENT_PREFIX}/lessons?page=a&pageSize=a&sort=[["id","ASC"]]&status=a`)
+        .get(`${API_CONTENT_PREFIX}/lessons?page=a&pageSize=a&sort=[["id","ASC"]]&filter={"status":"a"}`)
         .set("Authorization", `Bearer ${adminToken}`)
         .expect(HttpStatus.BAD_REQUEST);
     });
@@ -156,7 +156,7 @@ describe("Lessons E2E Test", () => {
     it("Should fail due to user is not admin or content editor", () => {
       return agent
         .get(
-          `${API_CONTENT_PREFIX}/lessons?page=1&pageSize=10&sort=[["id","ASC"]]&status=${lesson["createdByAdmin"].status}`
+          `${API_CONTENT_PREFIX}/lessons?page=1&pageSize=10&sort=[["id","ASC"]]&filter={"status":${lesson["createdByAdmin"].status}}`
         )
         .set("Authorization", `Bearer ${userToken}`)
         .expect(HttpStatus.UNAUTHORIZED);
@@ -165,7 +165,7 @@ describe("Lessons E2E Test", () => {
     it("Should succeed due to user is admin or content editor", () => {
       return agent
         .get(
-          `${API_CONTENT_PREFIX}/lessons?page=1&pageSize=10&sort=[["id","ASC"]]&status=${lesson["createdByAdmin"].status}`
+          `${API_CONTENT_PREFIX}/lessons?page=1&pageSize=10&sort=[["id","ASC"]]&filter={"status":${lesson["createdByAdmin"].status}}`
         )
         .set("Authorization", `Bearer ${contentToken}`)
         .expect(HttpStatus.OK)
@@ -192,7 +192,7 @@ describe("Lessons E2E Test", () => {
 
     it("Should fail due to invalid query params(page & pageSize & status) value", () => {
       return agent
-        .get(`${API_CONTENT_PREFIX}/units/${unit.id}/lessons?page=a&pageSize=a&sort=[["id","ASC"]]&status=a`)
+        .get(`${API_CONTENT_PREFIX}/units/${unit.id}/lessons?page=a&pageSize=a&sort=[["id","ASC"]]&filter={"status":"a"}`)
         .set("Authorization", `Bearer ${adminToken}`)
         .expect(HttpStatus.BAD_REQUEST);
     });
@@ -200,7 +200,7 @@ describe("Lessons E2E Test", () => {
     it("Should succeed due to user having sufficient privileges", () => {
       return agent
         .get(
-          `${API_CONTENT_PREFIX}/units/${unit.id}/lessons?page=1&pageSize=10&sort=[["id","ASC"]]&status=${lesson["createdByAdmin"].status}`
+          `${API_CONTENT_PREFIX}/units/${unit.id}/lessons?page=1&pageSize=10&sort=[["id","ASC"]]&filter={"status":${lesson["createdByAdmin"].status}}`
         )
         .set("Authorization", `Bearer ${userToken}`)
         .expect(HttpStatus.OK)

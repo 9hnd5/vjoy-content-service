@@ -1,7 +1,7 @@
 import { Authorize, Controller } from "@common";
 import { Body, Delete, Get, Param, Patch, Post, Query } from "@nestjs/common";
 import { CreateUnitDto } from "./dto/create-unit.dto";
-import { QueryUnitDto } from "./dto/query-unit.dto";
+import { FindUnitsQueryDto } from "./dto/find-units-query.dto";
 import { UpdateUnitDto } from "./dto/update-unit.dto";
 import { UnitsService } from "./units.service";
 
@@ -17,7 +17,7 @@ export class UnitsController {
 
   @Authorize({ action: "list", resource: "units" })
   @Get()
-  findAll(@Query() query: QueryUnitDto) {
+  findAll(@Query() query: FindUnitsQueryDto) {
     return this.unitsService.findAll(query);
   }
 

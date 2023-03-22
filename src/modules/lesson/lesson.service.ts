@@ -29,12 +29,13 @@ export class LessonService extends BaseService {
     if (!unitId && [ROLE_CODE.ADMIN, ROLE_CODE.CONTENT_EDITOR].indexOf(signinUser.roleCode) < 0)
       throw new UnauthorizedException(this.i18n.t("message.NOT_PERMISSION"));
       
-    const { limit, offset, sort: order, status } = query;
-    const filter = {};
-    if (unitId) filter["unitId"] = unitId;
-    if (status) filter["status"] = status;
+    const { limit, offset, sort: order } = query;
+    const { status } = query.filter || {};
     return this.lessonModel.findAndCountAll({
-      where: filter,
+      where: {
+        ...(unitId && { unitId }),
+        ...(status && { status }),
+      },
       limit,
       offset,
       order,

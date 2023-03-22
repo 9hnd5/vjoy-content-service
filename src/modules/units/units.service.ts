@@ -4,7 +4,7 @@ import { InjectModel } from "@nestjs/sequelize";
 import { Level } from "entities/level.entity";
 import { Unit, UNIT_STATUS } from "entities/unit.entity";
 import { CreateUnitDto } from "./dto/create-unit.dto";
-import { QueryUnitDto } from "./dto/query-unit.dto";
+import { FindUnitsQueryDto } from "./dto/find-units-query.dto";
 import { UpdateUnitDto } from "./dto/update-unit.dto";
 
 @Injectable()
@@ -21,13 +21,14 @@ export class UnitsService extends BaseService {
     return this.unitModel.create(createUnitDto);
   }
 
-  findAll(query: QueryUnitDto) {
-    const { limit, offset, sort: order, levelCode, status } = query;
-    const filter = {};
-    if (levelCode) filter["levelCode"] = levelCode;
-    if (status) filter["status"] = status;
+  findAll(query: FindUnitsQueryDto) {
+    const { limit, offset, sort: order } = query;
+    const { levelCode, status } = query.filter || {};
     return this.unitModel.findAndCountAll({
-      where: filter,
+      where: {
+        ...(levelCode && { levelCode }),
+        ...(status && { status }),
+      },
       limit,
       offset,
       order,
