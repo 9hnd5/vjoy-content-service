@@ -28,7 +28,7 @@ export class LessonService extends BaseService {
     const signinUser = this.request.user!;
     if (!unitId && [ROLE_CODE.ADMIN, ROLE_CODE.CONTENT_EDITOR].indexOf(signinUser.roleCode) < 0)
       throw new UnauthorizedException(this.i18n.t("message.NOT_PERMISSION"));
-      
+
     const { limit, offset, sort: order } = query;
     const { status } = query.filter || {};
     return this.lessonModel.findAndCountAll({
@@ -39,14 +39,14 @@ export class LessonService extends BaseService {
       limit,
       offset,
       order,
-      include: [{ model: Unit, attributes: ["id", "name", "levelCode"] }],
+      include: [{ model: Unit, attributes: ["id", "name", "levelId"] }],
     });
   }
 
   async findOne(id: number) {
     const lesson = await this.lessonModel.findOne({
       where: { id },
-      include: [{ model: Unit, attributes: ["id", "name", "levelCode"] }],
+      include: [{ model: Unit, attributes: ["id", "name", "levelId"] }],
     });
     if (!lesson) throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: id } }));
 

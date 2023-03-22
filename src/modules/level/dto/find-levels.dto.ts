@@ -5,11 +5,6 @@ class Filter {
   @IsOptional()
   @IsNotEmpty()
   @IsString()
-  code?: string;
-
-  @IsOptional()
-  @IsNotEmpty()
-  @IsString()
   name?: string;
 
   @IsOptional()

@@ -10,7 +10,7 @@ export class CreateUnitDto {
   status?: number = UNIT_STATUS.NEW;
 
   @IsNotEmpty()
-  levelCode: string;
+  levelId: string;
 
   @IsOptional()
   @IsJSON()

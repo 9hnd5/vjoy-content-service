@@ -3,7 +3,6 @@ import { Column, CreatedAt, DataType, Model, Table, UpdatedAt } from "sequelize-
 
 export type LevelAttributes = {
   id: number;
-  code: string;
   name: string;
   subject: string;
   status: number;
@@ -17,10 +16,7 @@ type LevelCreationAttributes = Optional<LevelAttributes, "id" | "createdAt" | "u
 
 @Table({ tableName: "levels", schema: "content" })
 export class Level extends Model<LevelAttributes, LevelCreationAttributes> {
-  id: number;
-
-  @Column({ type: DataType.STRING(255), allowNull: false })
-  code: string;
+  id: string;
 
   @Column({ type: DataType.STRING(255), allowNull: false })
   name: string;
