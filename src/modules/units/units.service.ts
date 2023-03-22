@@ -14,35 +14,33 @@ export class UnitsService extends BaseService {
   }
 
   async create(createUnitDto: CreateUnitDto) {
-    const { levelCode } = createUnitDto;
-    const count = await this.levelModel.count({ where: { code: levelCode } });
-    if (count <= 0) throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: levelCode } }));
-
+    const { levelId } = createUnitDto;
+    const count = await this.levelModel.count({ where: { id: levelId } });
+    if (count <= 0) throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: levelId } }));
     return this.unitModel.create(createUnitDto);
   }
 
   findAll(query: FindUnitsQueryDto) {
     const { limit, offset, sort: order } = query;
-    const { levelCode, status } = query.filter || {};
+    const { levelId, status } = query.filter || {};
     return this.unitModel.findAndCountAll({
       where: {
-        ...(levelCode && { levelCode }),
+        ...(levelId && { levelId }),
         ...(status && { status }),
       },
       limit,
       offset,
       order,
-      include: [{ model: Level, attributes: ["id", "name", "code"] }],
+      include: [{ model: Level, attributes: ["id", "name"] }],
     });
   }
 
   async findOne(id: number) {
     const unit = await this.unitModel.findOne({
       where: { id },
-      include: [{ model: Level, attributes: ["id", "name", "code"] }],
+      include: [{ model: Level, attributes: ["id", "name"] }],
     });
     if (!unit) throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: id } }));
-
     return unit;
   }
 
@@ -50,10 +48,10 @@ export class UnitsService extends BaseService {
     const unit = await this.unitModel.findOne({ where: { id } });
     if (!unit) throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: id } }));
 
-    const { levelCode } = updateUnitDto;
-    if (levelCode) {
-      const count = await this.levelModel.count({ where: { code: levelCode } });
-      if (count <= 0) throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: levelCode } }));
+    const { levelId } = updateUnitDto;
+    if (levelId) {
+      const count = await this.levelModel.count({ where: { id: levelId } });
+      if (count <= 0) throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: levelId } }));
     }
 
     unit.set(updateUnitDto);

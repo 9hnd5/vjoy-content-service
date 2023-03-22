@@ -72,7 +72,7 @@ describe("Units E2E Test", () => {
     let createDto: CreateUnitDto;
     beforeAll(() => {
       createDto = {
-        levelCode: "eng-A2",
+        levelId: "eng-A2",
       };
     });
 
@@ -109,7 +109,7 @@ describe("Units E2E Test", () => {
         .expect(HttpStatus.CREATED)
         .expect((res) => {
           const result = res.body.data;
-          expect(result.levelCode).toBe(createDto.levelCode);
+          expect(result.levelId).toBe(createDto.levelId);
           expect(result.status).toBe(UNIT_STATUS.NEW);
           unit["createdByAdmin"] = result;
         });
@@ -123,7 +123,7 @@ describe("Units E2E Test", () => {
         .expect(HttpStatus.CREATED)
         .expect((res) => {
           const result = res.body.data;
-          expect(result.levelCode).toBe(createDto.levelCode);
+          expect(result.levelId).toBe(createDto.levelId);
           expect(result.status).toBe(UNIT_STATUS.NEW);
           unit["createdByContent"] = result;
         });
@@ -147,7 +147,7 @@ describe("Units E2E Test", () => {
     it("Should succeed due to user having sufficient privileges", () => {
       return agent
         .get(
-          `${API_CONTENT_PREFIX}/units?page=1&pageSize=10&sort=[["id","ASC"]]&filter={"levelCode":"${unit["createdByAdmin"].levelCode}"}`
+          `${API_CONTENT_PREFIX}/units?page=1&pageSize=10&sort=[["id","ASC"]]&filter={"levelId":"${unit["createdByAdmin"].levelId}"}`
         )
         .set("Authorization", `Bearer ${userToken}`)
         .expect(HttpStatus.OK)
@@ -187,7 +187,7 @@ describe("Units E2E Test", () => {
     it("Should fail due to level code does not exist", () => {
       return agent
         .patch(`${API_CONTENT_PREFIX}/units/${unit["createdByAdmin"].id}`)
-        .send({ ...updateDto, levelCode: `levelCode-${generateNumber(6)}` })
+        .send({ ...updateDto, levelId: `levelId-${generateNumber(6)}` })
         .set("Authorization", `Bearer ${adminToken}`)
         .expect(HttpStatus.NOT_FOUND);
     });

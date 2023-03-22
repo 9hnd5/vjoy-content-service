@@ -6,7 +6,7 @@ class Filter {
   @IsOptional()
   @IsNotEmpty()
   @IsString()
-  levelCode?: string;
+  levelId?: string;
 
   @IsOptional()
   @IsIn(Object.values(UNIT_STATUS))

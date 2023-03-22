@@ -22,7 +22,7 @@ export const UNIT_STATUS = {
 export type UnitAttributes = {
   id: number;
   name?: string;
-  levelCode: string;
+  levelId: string;
   status: number;
   rules?: any;
   asset?: any;
@@ -45,9 +45,9 @@ export class Unit extends Model<UnitAttributes, UnitCreationAttributes> {
 
   @ForeignKey(() => Level)
   @Column({ type: DataType.STRING(255), allowNull: false })
-  levelCode: string;
+  levelId: string;
 
-  @BelongsTo(() => Level, { targetKey: "code" })
+  @BelongsTo(() => Level)
   level: Level;
 
   @Column(DataType.JSONB)

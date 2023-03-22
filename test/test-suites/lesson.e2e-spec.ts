@@ -71,9 +71,9 @@ describe("Lessons E2E Test", () => {
     const { accessToken: parentToken } = await signin({ email: parent.email!, password: "123456" });
     userToken = parentToken;
 
-    unit = await await unitModel.create({
+    unit = await unitModel.create({
       name: `test-lesson-${generateNumber(10)}`,
-      levelCode: "eng-A2",
+      levelId: "eng-A2",
     });
   });
 
@@ -192,7 +192,9 @@ describe("Lessons E2E Test", () => {
 
     it("Should fail due to invalid query params(page & pageSize & status) value", () => {
       return agent
-        .get(`${API_CONTENT_PREFIX}/units/${unit.id}/lessons?page=a&pageSize=a&sort=[["id","ASC"]]&filter={"status":"a"}`)
+        .get(
+          `${API_CONTENT_PREFIX}/units/${unit.id}/lessons?page=a&pageSize=a&sort=[["id","ASC"]]&filter={"status":"a"}`
+        )
         .set("Authorization", `Bearer ${adminToken}`)
         .expect(HttpStatus.BAD_REQUEST);
     });
