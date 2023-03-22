@@ -17,7 +17,8 @@ export class BuddyService extends BaseService {
   }
 
   findAll(query: FindBuddiesQueryDto) {
-    const { limit, offset, sort: order, status } = query;
+    const { limit, offset, sort: order } = query;
+    const { status } = query.filter || {};
     return this.buddyModel.findAndCountAll({
       ...(status && { where: { status } }),
       limit,
