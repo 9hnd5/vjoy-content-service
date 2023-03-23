@@ -22,11 +22,11 @@ export const LESSON_STATUS = {
 export type LessonAttributes = {
   id: number;
   name?: string;
-  curriculum?: any;
   status: number;
   unitId: number;
   rules?: any;
   asset?: any;
+  gameType: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -39,9 +39,6 @@ export class Lesson extends Model<LessonAttributes, LessonCreationAttributes> {
 
   @Column(DataType.STRING(255))
   name?: string;
-
-  @Column(DataType.JSONB)
-  curriculum?: any;
 
   @Default(LESSON_STATUS.NEW)
   @Column({ type: DataType.INTEGER, allowNull: false })
@@ -59,6 +56,9 @@ export class Lesson extends Model<LessonAttributes, LessonCreationAttributes> {
 
   @Column(DataType.JSONB)
   asset?: any;
+
+  @Column({ type: DataType.STRING(255), allowNull: false })
+  gameType: string;
 
   @CreatedAt
   createdAt: Date;

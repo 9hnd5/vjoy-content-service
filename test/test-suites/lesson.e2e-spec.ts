@@ -82,6 +82,7 @@ describe("Lessons E2E Test", () => {
     beforeAll(() => {
       createDto = {
         unitId: unit.id,
+        gameType: "word-balloon",
       };
     });
 
