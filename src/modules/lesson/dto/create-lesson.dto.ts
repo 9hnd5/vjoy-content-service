@@ -7,10 +7,6 @@ export class CreateLessonDto {
   name?: string;
 
   @IsOptional()
-  @IsJSON()
-  curriculum?: any;
-
-  @IsOptional()
   @IsIn(Object.values(LESSON_STATUS))
   status?: number = LESSON_STATUS.NEW;
 
@@ -25,4 +21,7 @@ export class CreateLessonDto {
   @IsOptional()
   @IsJSON()
   asset?: any;
+
+  @IsNotEmpty()
+  gameType: string;
 }
