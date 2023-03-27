@@ -81,9 +81,18 @@ describe("Lessons E2E Test", () => {
     let createDto: CreateLessonDto;
     beforeAll(() => {
       createDto = {
+        name: 'Sample',
         unitId: unit.id,
         gameType: GAME_TYPE.WORD_BALLOON,
-        difficulty: LESSON_DIFFICULTY.EASY
+        difficulty: LESSON_DIFFICULTY.EASY,
+        asset: {
+          bg: 'file_name',
+          cannon: 'file_name',
+          balloons: [ { name: 'file_name', type: 'W', position: '2,1' } ],
+          behavior: 1,
+          wordLength: 2,
+          missingLetter: 3
+        }
       };
     });
 
