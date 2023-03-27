@@ -6,7 +6,7 @@ import { camelCase } from "lodash";
 import { BuddyModule } from "modules/buddy/buddy.module";
 import { LessonModule } from "modules/lesson/lesson.module";
 import { LevelModule } from "modules/level/level.module";
-import { UnitsModule } from "modules/units/units.module";
+import { UnitsModule } from "modules/unit/unit.module";
 import * as path from "path";
 const contentEntityPath = path.join(__dirname, "entities/*.entity*");
 const coreEntityPath = path.join(__dirname, "..", "nest-common-module/entities/*.entity*");

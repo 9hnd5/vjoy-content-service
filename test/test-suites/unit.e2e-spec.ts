@@ -3,8 +3,8 @@ import { HttpStatus, INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { AppModule } from "app.module";
 import { Unit, UNIT_STATUS } from "entities/unit.entity";
-import { CreateUnitDto } from "modules/units/dto/create-unit.dto";
-import { UpdateUnitDto } from "modules/units/dto/update-unit.dto";
+import { CreateUnitDto } from "modules/unit/dto/create-unit.dto";
+import { UpdateUnitDto } from "modules/unit/dto/update-unit.dto";
 import * as request from "supertest";
 import { API_CONTENT_PREFIX } from "../test.contants";
 

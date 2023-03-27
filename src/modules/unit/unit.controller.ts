@@ -3,7 +3,7 @@ import { Body, Delete, Get, Param, Patch, Post, Query } from "@nestjs/common";
 import { CreateUnitDto } from "./dto/create-unit.dto";
 import { FindUnitsQueryDto } from "./dto/find-units-query.dto";
 import { UpdateUnitDto } from "./dto/update-unit.dto";
-import { UnitsService } from "./units.service";
+import { UnitsService } from "./unit.service";
 
 @Controller("units")
 export class UnitsController {
