@@ -8,7 +8,7 @@ import { FindUnitsQueryDto } from "./dto/find-units-query.dto";
 import { UpdateUnitDto } from "./dto/update-unit.dto";
 
 @Injectable()
-export class UnitsService extends BaseService {
+export class UnitService extends BaseService {
   constructor(@InjectModel(Level) private levelModel: typeof Level, @InjectModel(Unit) private unitModel: typeof Unit) {
     super();
   }
