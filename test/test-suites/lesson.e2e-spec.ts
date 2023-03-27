@@ -179,6 +179,22 @@ describe("Lessons E2E Test", () => {
           expect(lesson).toHaveProperty("curriculum");
         });
     });
+
+    it("Filter by gameType & status should succeed due to user is admin or content editor", () => {
+      return agent
+        .get(
+          `${API_CONTENT_PREFIX}/lessons?page=1&pageSize=10&sort=[["id","ASC"]]&filter={"status":${lesson["createdByAdmin"].status}, "gameType": "${GAME_TYPE.WORD_BALLOON}"}`
+        )
+        .set("Authorization", `Bearer ${contentToken}`)
+        .expect(HttpStatus.OK)
+        .expect((response) => {
+          const { data } = response.body;
+          expect(data.rows.length).toBeGreaterThan(0);
+          const lesson = data.rows[0];
+          expect(lesson).toHaveProperty("difficulty");
+          expect(lesson).toHaveProperty("curriculum");
+        });
+    });
   });
 
   describe("Get all by unitId (GET)api/units/:unitId/lessons", () => {
