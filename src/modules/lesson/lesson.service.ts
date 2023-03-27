@@ -30,11 +30,12 @@ export class LessonService extends BaseService {
       throw new UnauthorizedException(this.i18n.t("message.NOT_PERMISSION"));
 
     const { limit, offset, sort: order } = query;
-    const { status } = query.filter || {};
+    const { status, gameType } = query.filter || {};
     return this.lessonModel.findAndCountAll({
       where: {
         ...(unitId && { unitId }),
         ...(status && { status }),
+        ...(gameType && { gameType }),
       },
       limit,
       offset,

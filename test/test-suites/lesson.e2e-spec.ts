@@ -2,7 +2,7 @@ import { API_TOKEN, createUser, deleteUser, generateNumber, ROLE_CODE, signin, U
 import { HttpStatus, INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { AppModule } from "app.module";
-import { Lesson, LESSON_STATUS } from "entities/lesson.entity";
+import { GAME_TYPE, Lesson, LESSON_DIFFICULTY, LESSON_STATUS } from "entities/lesson.entity";
 import { Unit } from "entities/unit.entity";
 import { CreateLessonDto } from "modules/lesson/dto/create-lesson.dto";
 import { UpdateLessonDto } from "modules/lesson/dto/update-lesson.dto";
@@ -82,7 +82,8 @@ describe("Lessons E2E Test", () => {
     beforeAll(() => {
       createDto = {
         unitId: unit.id,
-        gameType: "word-balloon",
+        gameType: GAME_TYPE.WORD_BALLOON,
+        difficulty: LESSON_DIFFICULTY.EASY
       };
     });
 
@@ -173,6 +174,25 @@ describe("Lessons E2E Test", () => {
         .expect((response) => {
           const { data } = response.body;
           expect(data.rows.length).toBeGreaterThan(0);
+          const lesson = data.rows[0];
+          expect(lesson).toHaveProperty("difficulty");
+          expect(lesson).toHaveProperty("curriculum");
+        });
+    });
+
+    it("Filter by gameType & status should succeed due to user is admin or content editor", () => {
+      return agent
+        .get(
+          `${API_CONTENT_PREFIX}/lessons?page=1&pageSize=10&sort=[["id","ASC"]]&filter={"status":${lesson["createdByAdmin"].status}, "gameType": "${GAME_TYPE.WORD_BALLOON}"}`
+        )
+        .set("Authorization", `Bearer ${contentToken}`)
+        .expect(HttpStatus.OK)
+        .expect((response) => {
+          const { data } = response.body;
+          expect(data.rows.length).toBeGreaterThan(0);
+          const lesson = data.rows[0];
+          expect(lesson).toHaveProperty("difficulty");
+          expect(lesson).toHaveProperty("curriculum");
         });
     });
   });
@@ -298,6 +318,8 @@ describe("Lessons E2E Test", () => {
         .expect((res) => {
           const responseData = res.body.data;
           expect(responseData.id).toEqual(id);
+          expect(responseData).toHaveProperty("difficulty");
+          expect(responseData).toHaveProperty("curriculum");
         });
     });
   });

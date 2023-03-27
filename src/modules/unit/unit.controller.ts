@@ -3,11 +3,11 @@ import { Body, Delete, Get, Param, Patch, Post, Query } from "@nestjs/common";
 import { CreateUnitDto } from "./dto/create-unit.dto";
 import { FindUnitsQueryDto } from "./dto/find-units-query.dto";
 import { UpdateUnitDto } from "./dto/update-unit.dto";
-import { UnitsService } from "./units.service";
+import { UnitService } from "./unit.service";
 
 @Controller("units")
-export class UnitsController {
-  constructor(private readonly unitsService: UnitsService) {}
+export class UnitController {
+  constructor(private readonly unitsService: UnitService) {}
 
   @Authorize({ action: "create", resource: "units" })
   @Post()

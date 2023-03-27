@@ -1,5 +1,5 @@
 import { IsIn, IsInt, IsJSON, IsNotEmpty, IsOptional, Length } from "class-validator";
-import { LESSON_STATUS } from "entities/lesson.entity";
+import { GAME_TYPE, LESSON_DIFFICULTY, LESSON_STATUS } from "entities/lesson.entity";
 
 export class CreateLessonDto {
   @IsOptional()
@@ -23,5 +23,13 @@ export class CreateLessonDto {
   asset?: any;
 
   @IsNotEmpty()
+  @IsIn(Object.values(GAME_TYPE))
   gameType: string;
+
+  @IsIn(Object.values(LESSON_DIFFICULTY))
+  difficulty: number;
+
+  @IsOptional()
+  @IsJSON()
+  curriculum?: any;
 }
