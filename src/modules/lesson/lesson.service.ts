@@ -3,6 +3,7 @@ import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/co
 import { InjectModel } from "@nestjs/sequelize";
 import { Lesson, LESSON_STATUS } from "entities/lesson.entity";
 import { Unit } from "entities/unit.entity";
+import { isEmpty } from "lodash";
 import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { FindLessonsQueryDto } from "./dto/find-lessons-query.dto";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
@@ -33,9 +34,9 @@ export class LessonService extends BaseService {
     const { status, gameType } = query.filter || {};
     return this.lessonModel.findAndCountAll({
       where: {
-        ...(unitId && { unitId }),
-        ...(status && { status }),
-        ...(gameType && { gameType }),
+        ...(!isEmpty(unitId) && { unitId }),
+        ...(!isEmpty(status) && { status }),
+        ...(!isEmpty(gameType) && { gameType }),
       },
       limit,
       offset,
