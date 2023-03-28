@@ -2,6 +2,7 @@ import { BaseService, ROLE_CODE } from "@common";
 import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
 import { Buddy, BUDDY_STATUS } from "entities/buddy.entity";
+import { isNil } from "lodash";
 import { CreateBuddyDto } from "./dto/create-buddy.dto";
 import { FindBuddiesQueryDto } from "./dto/find-buddies-query.dto";
 import { UpdateBuddyDto } from "./dto/update-buddy.dto";
@@ -20,7 +21,7 @@ export class BuddyService extends BaseService {
     const { limit, offset, sort: order } = query;
     const { status } = query.filter || {};
     return this.buddyModel.findAndCountAll({
-      ...(status && { where: { status } }),
+      ...(!isNil(status) && { where: { status } }),
       limit,
       offset,
       order,

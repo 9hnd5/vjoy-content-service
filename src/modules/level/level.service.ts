@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
 import { Level } from "entities/level.entity";
+import { isEmpty, isNil } from "lodash";
 import { Op } from "sequelize";
 import { FindLevelsQueryDto } from "./dto/find-levels.dto";
 
@@ -13,8 +14,8 @@ export class LevelService {
     const { sort: order, limit, offset } = query;
     return this.levelModel.findAndCountAll({
       where: {
-        ...(name && { name: { [Op.iLike]: `%${name}%` } }),
-        ...(ids?.length && { id: { [Op.in]: ids } }),
+        ...(!isNil(name) && { name: { [Op.iLike]: `%${name}%` } }),
+        ...(!isNil(ids) && { id: { [Op.in]: ids } }),
       },
       order,
       limit,
