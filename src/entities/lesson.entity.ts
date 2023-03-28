@@ -13,10 +13,10 @@ import {
 import { Unit } from "./unit.entity";
 
 export const LESSON_STATUS = {
-  NEW: 0,
+  SAVED: 0,
   APPROVED: 1,
   PUBLISHED: 2,
-  HIDE: 3,
+  HIDDEN: 3,
 };
 
 export const LESSON_DIFFICULTY = {
@@ -58,7 +58,7 @@ export class Lesson extends Model<LessonAttributes, LessonCreationAttributes> {
   @Column(DataType.STRING(255))
   name?: string;
 
-  @Default(LESSON_STATUS.NEW)
+  @Default(LESSON_STATUS.SAVED)
   @Column({ type: DataType.INTEGER, allowNull: false })
   status: number;
 

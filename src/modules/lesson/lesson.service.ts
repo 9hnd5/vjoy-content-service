@@ -77,6 +77,6 @@ export class LessonService extends BaseService {
         throw new UnauthorizedException(this.i18n.t("message.NOT_PERMISSION"));
       return lesson.destroy();
     }
-    return (await lesson.update({ status: LESSON_STATUS.HIDE })).dataValues;
+    return (await lesson.update({ status: LESSON_STATUS.HIDDEN })).dataValues;
   }
 }

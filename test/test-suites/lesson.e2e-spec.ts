@@ -130,7 +130,7 @@ describe("Lessons E2E Test", () => {
         .expect((res) => {
           const result = res.body.data;
           expect(result.unitId).toBe(createDto.unitId);
-          expect(result.status).toBe(LESSON_STATUS.NEW);
+          expect(result.status).toBe(LESSON_STATUS.SAVED);
           lesson["createdByAdmin"] = result;
         });
     });
@@ -144,7 +144,7 @@ describe("Lessons E2E Test", () => {
         .expect((res) => {
           const result = res.body.data;
           expect(result.unitId).toBe(createDto.unitId);
-          expect(result.status).toBe(LESSON_STATUS.NEW);
+          expect(result.status).toBe(LESSON_STATUS.SAVED);
           lesson["createdByContent"] = result;
         });
     });
@@ -369,7 +369,7 @@ describe("Lessons E2E Test", () => {
         .then(async () => {
           const deleted = await lessonModel.findOne({ where: { id: lesson["createdByContent"].id } });
           expect(deleted).not.toBeNull();
-          expect(deleted?.status).toEqual(LESSON_STATUS.HIDE);
+          expect(deleted?.status).toEqual(LESSON_STATUS.HIDDEN);
         });
     });
 
