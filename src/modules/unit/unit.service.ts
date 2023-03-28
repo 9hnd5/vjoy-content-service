@@ -3,6 +3,7 @@ import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/co
 import { InjectModel } from "@nestjs/sequelize";
 import { Level } from "entities/level.entity";
 import { Unit, UNIT_STATUS } from "entities/unit.entity";
+import { isNil } from "lodash";
 import { CreateUnitDto } from "./dto/create-unit.dto";
 import { FindUnitsQueryDto } from "./dto/find-units-query.dto";
 import { UpdateUnitDto } from "./dto/update-unit.dto";
@@ -25,8 +26,8 @@ export class UnitService extends BaseService {
     const { levelId, status } = query.filter || {};
     return this.unitModel.findAndCountAll({
       where: {
-        ...(levelId && { levelId }),
-        ...(status && { status }),
+        ...(!isNil(levelId) && { levelId }),
+        ...(!isNil(status) && { status }),
       },
       limit,
       offset,

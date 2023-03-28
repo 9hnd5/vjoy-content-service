@@ -3,6 +3,7 @@ import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/co
 import { InjectModel } from "@nestjs/sequelize";
 import { Lesson, LESSON_STATUS } from "entities/lesson.entity";
 import { Unit } from "entities/unit.entity";
+import { isNil } from "lodash";
 import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { FindLessonsQueryDto } from "./dto/find-lessons-query.dto";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
@@ -33,9 +34,9 @@ export class LessonService extends BaseService {
     const { status, gameType } = query.filter || {};
     return this.lessonModel.findAndCountAll({
       where: {
-        ...(unitId && { unitId }),
-        ...(status && { status }),
-        ...(gameType && { gameType }),
+        ...(!isNil(unitId) && { unitId }),
+        ...(!isNil(status) && { status }),
+        ...(!isNil(gameType) && { gameType }),
       },
       limit,
       offset,
@@ -77,6 +78,6 @@ export class LessonService extends BaseService {
         throw new UnauthorizedException(this.i18n.t("message.NOT_PERMISSION"));
       return lesson.destroy();
     }
-    return (await lesson.update({ status: LESSON_STATUS.HIDE })).dataValues;
+    return (await lesson.update({ status: LESSON_STATUS.HIDDEN })).dataValues;
   }
 }

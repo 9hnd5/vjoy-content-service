@@ -10,7 +10,7 @@ export class CreateLessonDto {
 
   @IsOptional()
   @IsIn(Object.values(LESSON_STATUS))
-  status?: number = LESSON_STATUS.NEW;
+  status?: number = LESSON_STATUS.SAVED;
 
   @IsNotEmpty() 
   @IsInt()

@@ -130,7 +130,7 @@ describe("Lessons E2E Test", () => {
         .expect((res) => {
           const result = res.body.data;
           expect(result.unitId).toBe(createDto.unitId);
-          expect(result.status).toBe(LESSON_STATUS.NEW);
+          expect(result.status).toBe(LESSON_STATUS.SAVED);
           lesson["createdByAdmin"] = result;
         });
     });
@@ -144,7 +144,7 @@ describe("Lessons E2E Test", () => {
         .expect((res) => {
           const result = res.body.data;
           expect(result.unitId).toBe(createDto.unitId);
-          expect(result.status).toBe(LESSON_STATUS.NEW);
+          expect(result.status).toBe(LESSON_STATUS.SAVED);
           lesson["createdByContent"] = result;
         });
     });
@@ -190,18 +190,23 @@ describe("Lessons E2E Test", () => {
     });
 
     it("Filter by gameType & status should succeed due to user is admin or content editor", () => {
+      const status = lesson["createdByAdmin"].status;
       return agent
         .get(
-          `${API_CONTENT_PREFIX}/lessons?page=1&pageSize=10&sort=[["id","ASC"]]&filter={"status":${lesson["createdByAdmin"].status}, "gameType": "${GAME_TYPE.WORD_BALLOON}"}`
+          `${API_CONTENT_PREFIX}/lessons?page=1&pageSize=10&sort=[["id","ASC"]]&filter={"status":${status}, "gameType": "${GAME_TYPE.WORD_BALLOON}"}`
         )
         .set("Authorization", `Bearer ${contentToken}`)
         .expect(HttpStatus.OK)
         .expect((response) => {
           const { data } = response.body;
           expect(data.rows.length).toBeGreaterThan(0);
-          const lesson = data.rows[0];
-          expect(lesson).toHaveProperty("difficulty");
-          expect(lesson).toHaveProperty("curriculum");
+          data.rows.forEach(lesson => {
+            expect(lesson).toHaveProperty("difficulty");
+            expect(lesson).toHaveProperty("curriculum");
+            expect(lesson.status).toEqual(status);
+            expect(lesson.gameType).toEqual(GAME_TYPE.WORD_BALLOON);
+          });
+          
         });
     });
   });
@@ -369,7 +374,7 @@ describe("Lessons E2E Test", () => {
         .then(async () => {
           const deleted = await lessonModel.findOne({ where: { id: lesson["createdByContent"].id } });
           expect(deleted).not.toBeNull();
-          expect(deleted?.status).toEqual(LESSON_STATUS.HIDE);
+          expect(deleted?.status).toEqual(LESSON_STATUS.HIDDEN);
         });
     });
 
