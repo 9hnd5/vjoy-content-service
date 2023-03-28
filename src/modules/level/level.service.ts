@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
 import { Level } from "entities/level.entity";
-import { isEmpty, isNil } from "lodash";
+import { isNil } from "lodash";
 import { Op } from "sequelize";
 import { FindLevelsQueryDto } from "./dto/find-levels.dto";
 
