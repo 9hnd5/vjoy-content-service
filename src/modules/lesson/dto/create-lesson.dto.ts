@@ -1,4 +1,4 @@
-import { IsIn, IsInt, IsJSON, IsString, IsNotEmpty, IsOptional, IsArray, Length, ValidateIf, ValidateNested} from "class-validator";
+import { IsIn, IsInt, IsJSON, IsString, IsNotEmpty, IsOptional, IsArray, IsUrl, Length, ValidateIf, ValidateNested, Matches} from "class-validator";
 import { Type } from 'class-transformer';
 
 import { GAME_TYPE, LESSON_DIFFICULTY, LESSON_STATUS } from "entities/lesson.entity";
@@ -39,10 +39,14 @@ export class CreateLessonDto {
 }
 
 class WordBalloonAssetDto {
-  @IsString()
+
+  @IsUrl()
+  bundle_url: string;
+
+  @Matches(/^(?:(?!\.png$).)*$/i, { message: 'String must not end with ".png"' })
   bg: string;
 
-  @IsString()
+  @Matches(/^(?:(?!\.png$).)*$/i, { message: 'String must not end with ".png"' })
   cannon: string;
 
   @IsArray()
@@ -52,16 +56,10 @@ class WordBalloonAssetDto {
 
   @IsInt()
   behavior: number;
-
-  @IsInt()
-  wordLength: number;
-
-  @IsInt()
-  missingLetter: number;
 }
 
 class BalloonDto {
-  @IsString()
+  @Matches(/^(?:(?!\.png$).)*$/i, { message: 'String must not end with ".png"' })
   name: string;
 
   @IsIn(["W", "E"])

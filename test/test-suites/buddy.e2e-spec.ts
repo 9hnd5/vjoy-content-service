@@ -108,14 +108,14 @@ describe("Buddies E2E Test", () => {
         .post(`${API_CONTENT_PREFIX}/buddies`)
         .send(createDto)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.CREATED)
         .expect((res) => {
           const result = res.body.data;
           expect(result.name).toBe(createDto.name);
           expect(result.code).toBe(createDto.code);
           expect(result.status).toBe(BUDDY_STATUS.NEW);
           buddy["createdByAdmin"] = result;
-        });
+        })
+        .expect(HttpStatus.CREATED);
     });
 
     it("Should succeed due to user is content editor", () => {
@@ -123,14 +123,14 @@ describe("Buddies E2E Test", () => {
         .post(`${API_CONTENT_PREFIX}/buddies`)
         .send(createDto)
         .set("Authorization", `Bearer ${contentToken}`)
-        .expect(HttpStatus.CREATED)
         .expect((res) => {
           const result = res.body.data;
           expect(result.name).toBe(createDto.name);
           expect(result.code).toBe(createDto.code);
           expect(result.status).toBe(BUDDY_STATUS.NEW);
           buddy["createdByContent"] = result;
-        });
+        })
+        .expect(HttpStatus.CREATED);
     });
   });
 
@@ -154,11 +154,11 @@ describe("Buddies E2E Test", () => {
           `${API_CONTENT_PREFIX}/buddies?page=1&pageSize=10&sort=[["id","ASC"]]&filter={"status":${buddy["createdByAdmin"].status}}`
         )
         .set("Authorization", `Bearer ${userToken}`)
-        .expect(HttpStatus.OK)
         .expect((response) => {
           const { data } = response.body;
           expect(data.rows.length).toBeGreaterThan(0);
-        });
+        })
+        .expect(HttpStatus.OK);
     });
   });
 
@@ -193,12 +193,12 @@ describe("Buddies E2E Test", () => {
         .patch(`${API_CONTENT_PREFIX}/buddies/${buddy["createdByAdmin"].id}`)
         .send(updateDto)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.OK)
-        .then((res) => {
+        .expect((res) => {
           const updated = res.body.data;
           expect(updated.name).toBe(updateDto.name);
           expect(updated.status).toBe(updateDto.status);
-        });
+        })
+        .expect(HttpStatus.OK);
     });
 
     it("Should succeed due to user is content editor", async () => {
@@ -206,12 +206,12 @@ describe("Buddies E2E Test", () => {
         .patch(`${API_CONTENT_PREFIX}/buddies/${buddy["createdByContent"].id}`)
         .send(updateDto)
         .set("Authorization", `Bearer ${contentToken}`)
-        .expect(HttpStatus.OK)
-        .then((res) => {
+        .expect((res) => {
           const updated = res.body.data;
           expect(updated.name).toBe(updateDto.name);
           expect(updated.status).toBe(updateDto.status);
-        });
+        })
+        .expect(HttpStatus.OK);
     });
   });
 
@@ -232,11 +232,11 @@ describe("Buddies E2E Test", () => {
       return agent
         .get(`${API_CONTENT_PREFIX}/buddies/${id}`)
         .set("Authorization", `Bearer ${userToken}`)
-        .expect(HttpStatus.OK)
         .expect((res) => {
           const responseData = res.body.data;
           expect(responseData.id).toEqual(id);
-        });
+        })
+        .expect(HttpStatus.OK);
     });
   });
 
@@ -272,34 +272,34 @@ describe("Buddies E2E Test", () => {
       return agent
         .delete(`${API_CONTENT_PREFIX}/buddies/${buddy["createdByContent"].id}`)
         .set("Authorization", `Bearer ${contentToken}`)
-        .expect(HttpStatus.OK)
-        .then(async () => {
+        .expect(async () => {
           const deleted = await buddyModel.findOne({ where: { id: buddy["createdByContent"].id } });
           expect(deleted).not.toBeNull();
           expect(deleted?.status).toEqual(BUDDY_STATUS.HIDE);
-        });
+        })
+        .expect(HttpStatus.OK);
     });
 
     it("Should succeed due to user is admin (Hard delete)", async () => {
       return agent
         .delete(`${API_CONTENT_PREFIX}/buddies/${buddy["createdByAdmin"].id}?hardDelete=true`)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.OK)
-        .then(async () => {
+        .expect(async () => {
           const deleted = await buddyModel.findOne({ where: { id: buddy["createdByAdmin"].id } });
           expect(deleted).toBeNull();
-        });
+        })
+        .expect(HttpStatus.OK);
     });
 
     it("Should succeed due to user is admin (Hard delete)", async () => {
       return agent
         .delete(`${API_CONTENT_PREFIX}/buddies/${buddy["createdByContent"].id}?hardDelete=true`)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.OK)
-        .then(async () => {
+        .expect(async () => {
           const deleted = await buddyModel.findOne({ where: { id: buddy["createdByContent"].id } });
           expect(deleted).toBeNull();
-        });
+        })
+        .expect(HttpStatus.OK);
     });
   });
 

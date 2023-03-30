@@ -106,13 +106,13 @@ describe("Units E2E Test", () => {
         .post(`${API_CONTENT_PREFIX}/units`)
         .send(createDto)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.CREATED)
         .expect((res) => {
           const result = res.body.data;
           expect(result.levelId).toBe(createDto.levelId);
           expect(result.status).toBe(UNIT_STATUS.NEW);
           unit["createdByAdmin"] = result;
-        });
+        })
+        .expect(HttpStatus.CREATED);
     });
 
     it("Should succeed due to user is content editor", () => {
@@ -120,13 +120,13 @@ describe("Units E2E Test", () => {
         .post(`${API_CONTENT_PREFIX}/units`)
         .send(createDto)
         .set("Authorization", `Bearer ${contentToken}`)
-        .expect(HttpStatus.CREATED)
         .expect((res) => {
           const result = res.body.data;
           expect(result.levelId).toBe(createDto.levelId);
           expect(result.status).toBe(UNIT_STATUS.NEW);
           unit["createdByContent"] = result;
-        });
+        })
+        .expect(HttpStatus.CREATED);
     });
   });
 
@@ -150,11 +150,11 @@ describe("Units E2E Test", () => {
           `${API_CONTENT_PREFIX}/units?page=1&pageSize=10&sort=[["id","ASC"]]&filter={"levelId":"${unit["createdByAdmin"].levelId}"}`
         )
         .set("Authorization", `Bearer ${userToken}`)
-        .expect(HttpStatus.OK)
         .expect((response) => {
           const { data } = response.body;
           expect(data.rows.length).toBeGreaterThan(0);
-        });
+        })
+        .expect(HttpStatus.OK);
     });
   });
 
@@ -197,8 +197,7 @@ describe("Units E2E Test", () => {
         .patch(`${API_CONTENT_PREFIX}/units/${unit["createdByAdmin"].id}`)
         .send(updateDto)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.OK)
-        .then((res) => {
+        .expect((res) => {
           const updated = res.body.data;
           expect(updated.name).toBe(updateDto.name);
           expect(updated.status).toBe(updateDto.status);
@@ -210,12 +209,12 @@ describe("Units E2E Test", () => {
         .patch(`${API_CONTENT_PREFIX}/units/${unit["createdByContent"].id}`)
         .send(updateDto)
         .set("Authorization", `Bearer ${contentToken}`)
-        .expect(HttpStatus.OK)
-        .then((res) => {
+        .expect((res) => {
           const updated = res.body.data;
           expect(updated.name).toBe(updateDto.name);
           expect(updated.status).toBe(updateDto.status);
-        });
+        })
+        .expect(HttpStatus.OK);
     });
   });
 
@@ -236,11 +235,11 @@ describe("Units E2E Test", () => {
       return agent
         .get(`${API_CONTENT_PREFIX}/units/${id}`)
         .set("Authorization", `Bearer ${userToken}`)
-        .expect(HttpStatus.OK)
         .expect((res) => {
           const responseData = res.body.data;
           expect(responseData.id).toEqual(id);
-        });
+        })
+        .expect(HttpStatus.OK);
     });
   });
 
@@ -274,34 +273,34 @@ describe("Units E2E Test", () => {
       return agent
         .delete(`${API_CONTENT_PREFIX}/units/${unit["createdByContent"].id}`)
         .set("Authorization", `Bearer ${contentToken}`)
-        .expect(HttpStatus.OK)
-        .then(async () => {
+        .expect(async () => {
           const deleted = await unitModel.findOne({ where: { id: unit["createdByContent"].id } });
           expect(deleted).not.toBeNull();
           expect(deleted?.status).toEqual(UNIT_STATUS.HIDE);
-        });
+        })
+        .expect(HttpStatus.OK);
     });
 
     it("Should succeed due to user is admin (Hard delete)", async () => {
       return agent
         .delete(`${API_CONTENT_PREFIX}/units/${unit["createdByAdmin"].id}?hardDelete=true`)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.OK)
-        .then(async () => {
+        .expect(async () => {
           const deleted = await unitModel.findOne({ where: { id: unit["createdByAdmin"].id } });
           expect(deleted).toBeNull();
-        });
+        })
+        .expect(HttpStatus.OK);
     });
 
     it("Should succeed due to user is admin (Hard delete)", async () => {
       return agent
         .delete(`${API_CONTENT_PREFIX}/units/${unit["createdByContent"].id}?hardDelete=true`)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.OK)
-        .then(async () => {
+        .expect(async () => {
           const deleted = await unitModel.findOne({ where: { id: unit["createdByContent"].id } });
           expect(deleted).toBeNull();
-        });
+        })
+        .expect(HttpStatus.OK);
     });
   });
 

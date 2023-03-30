@@ -77,7 +77,7 @@ describe("Lessons E2E Test", () => {
     });
   });
 
-  describe("Create Lesson (POST)api/lessons", () => {
+  describe("Create WORD_BALLOON Lesson (POST)api/lessons", () => {
     let createDto: CreateLessonDto;
     beforeAll(() => {
       createDto = {
@@ -86,6 +86,7 @@ describe("Lessons E2E Test", () => {
         gameType: GAME_TYPE.WORD_BALLOON,
         difficulty: LESSON_DIFFICULTY.EASY,
         asset: {
+          bundle_url: 'https://fsfs.com/fsdf.bundle',
           bg: 'file_name',
           cannon: 'file_name',
           balloons: [ { name: 'file_name', type: 'W', position: '2,1' } ],
@@ -108,15 +109,68 @@ describe("Lessons E2E Test", () => {
         .expect(HttpStatus.FORBIDDEN);
     });
 
-    it("Should fail due to invalid field", () => {
+    it("Should fail due to invalid asset.bundle_url", () => {
+      const invalidAsset = {
+        bundle_url: 'invalid url',
+        bg: 'file_name',
+        cannon: 'file_name',
+        balloons: [{ name: 'file_name.png', type: 'W', position: '2,1' }],
+        behavior: 1,
+        wordLength: 2,
+        missingLetter: 3
+      };
       return agent
         .post(`${API_CONTENT_PREFIX}/lessons`)
-        .send({ ...createDto, status: generateNumber(2) })
+        .send({ ...createDto, asset: invalidAsset })
         .set("Authorization", `Bearer ${adminToken}`)
         .expect((res) => {
           const { error } = res.body;
           expect(error).not.toBeNull();
-          expect(error[0].code).toBe("status");
+          expect(error[0].code).toContain("asset");
+          expect(error[0].message).not.toBeNull();
+        });
+    });
+
+    it("Should fail due to invalid image field", () => {
+      const invalidAsset = {
+        bundle_url: 'https://fsfs.com/fsdf.bundle',
+        bg: 'file_name.png',
+        cannon: 'file_name',
+        balloons: [{ name: 'file_name.png', type: 'W', position: '2,1' }],
+        behavior: 1,
+        wordLength: 2,
+        missingLetter: 3
+      };
+      return agent
+        .post(`${API_CONTENT_PREFIX}/lessons`)
+        .send({ ...createDto, asset: invalidAsset })
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect((res) => {
+          const { error } = res.body;
+          expect(error).not.toBeNull();
+          expect(error[0].code).toContain("asset");
+          expect(error[0].message).not.toBeNull();
+        });
+    });
+
+    it("Should fail due to invalid image field", () => {
+      const invalidAsset = {
+        bundle_url: 'https://fsfs.com/fsdf.bundle',
+        bg: 'file_name.png',
+        cannon: 'file_name',
+        balloons: [{ name: 'file_name.png', type: 'W', position: '2,1' }],
+        behavior: 1,
+        wordLength: 2,
+        missingLetter: 3
+      };
+      return agent
+        .post(`${API_CONTENT_PREFIX}/lessons`)
+        .send({ ...createDto, asset: invalidAsset })
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect((res) => {
+          const { error } = res.body;
+          expect(error).not.toBeNull();
+          expect(error[0].code).toContain("asset");
           expect(error[0].message).not.toBeNull();
         });
     });
@@ -126,13 +180,13 @@ describe("Lessons E2E Test", () => {
         .post(`${API_CONTENT_PREFIX}/lessons`)
         .send(createDto)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.CREATED)
         .expect((res) => {
           const result = res.body.data;
           expect(result.unitId).toBe(createDto.unitId);
           expect(result.status).toBe(LESSON_STATUS.SAVED);
           lesson["createdByAdmin"] = result;
-        });
+        })
+        .expect(HttpStatus.CREATED);
     });
 
     it("Should succeed due to user is content editor", () => {
@@ -140,13 +194,13 @@ describe("Lessons E2E Test", () => {
         .post(`${API_CONTENT_PREFIX}/lessons`)
         .send(createDto)
         .set("Authorization", `Bearer ${contentToken}`)
-        .expect(HttpStatus.CREATED)
         .expect((res) => {
           const result = res.body.data;
           expect(result.unitId).toBe(createDto.unitId);
           expect(result.status).toBe(LESSON_STATUS.SAVED);
           lesson["createdByContent"] = result;
-        });
+        })
+        .expect(HttpStatus.CREATED);
     });
   });
 
@@ -179,14 +233,14 @@ describe("Lessons E2E Test", () => {
           `${API_CONTENT_PREFIX}/lessons?page=1&pageSize=10&sort=[["id","ASC"]]&filter={"status":${lesson["createdByAdmin"].status}}`
         )
         .set("Authorization", `Bearer ${contentToken}`)
-        .expect(HttpStatus.OK)
         .expect((response) => {
           const { data } = response.body;
           expect(data.rows.length).toBeGreaterThan(0);
           const lesson = data.rows[0];
           expect(lesson).toHaveProperty("difficulty");
           expect(lesson).toHaveProperty("curriculum");
-        });
+        })
+        .expect(HttpStatus.OK);
     });
 
     it("Filter by gameType & status should succeed due to user is admin or content editor", () => {
@@ -196,7 +250,6 @@ describe("Lessons E2E Test", () => {
           `${API_CONTENT_PREFIX}/lessons?page=1&pageSize=10&sort=[["id","ASC"]]&filter={"status":${status}, "gameType": "${GAME_TYPE.WORD_BALLOON}"}`
         )
         .set("Authorization", `Bearer ${contentToken}`)
-        .expect(HttpStatus.OK)
         .expect((response) => {
           const { data } = response.body;
           expect(data.rows.length).toBeGreaterThan(0);
@@ -207,7 +260,8 @@ describe("Lessons E2E Test", () => {
             expect(lesson.gameType).toEqual(GAME_TYPE.WORD_BALLOON);
           });
           
-        });
+        })
+        .expect(HttpStatus.OK) ;
     });
   });
 
@@ -240,11 +294,11 @@ describe("Lessons E2E Test", () => {
           `${API_CONTENT_PREFIX}/units/${unit.id}/lessons?page=1&pageSize=10&sort=[["id","ASC"]]&filter={"status":${lesson["createdByAdmin"].status}}`
         )
         .set("Authorization", `Bearer ${userToken}`)
-        .expect(HttpStatus.OK)
         .expect((response) => {
           const { data } = response.body;
           expect(data.rows.length).toBeGreaterThan(0);
-        });
+        })
+        .expect(HttpStatus.OK);
     });
   });
 
@@ -289,12 +343,12 @@ describe("Lessons E2E Test", () => {
         .patch(`${API_CONTENT_PREFIX}/lessons/${lesson["createdByAdmin"].id}`)
         .send(updateDto)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.OK)
-        .then((res) => {
+        .expect((res) => {
           const updated = res.body.data;
           expect(updated.name).toBe(updateDto.name);
           expect(updated.status).toBe(updateDto.status);
-        });
+        })
+        .expect(HttpStatus.OK);
     });
 
     it("Should succeed due to user is content editor", async () => {
@@ -302,12 +356,12 @@ describe("Lessons E2E Test", () => {
         .patch(`${API_CONTENT_PREFIX}/lessons/${lesson["createdByContent"].id}`)
         .send(updateDto)
         .set("Authorization", `Bearer ${contentToken}`)
-        .expect(HttpStatus.OK)
-        .then((res) => {
+        .expect((res) => {
           const updated = res.body.data;
           expect(updated.name).toBe(updateDto.name);
           expect(updated.status).toBe(updateDto.status);
-        });
+        })
+        .expect(HttpStatus.OK);
     });
   });
 
@@ -328,13 +382,13 @@ describe("Lessons E2E Test", () => {
       return agent
         .get(`${API_CONTENT_PREFIX}/lessons/${id}`)
         .set("Authorization", `Bearer ${userToken}`)
-        .expect(HttpStatus.OK)
         .expect((res) => {
           const responseData = res.body.data;
           expect(responseData.id).toEqual(id);
           expect(responseData).toHaveProperty("difficulty");
           expect(responseData).toHaveProperty("curriculum");
-        });
+        })
+        .expect(HttpStatus.OK);
     });
   });
 
@@ -370,34 +424,34 @@ describe("Lessons E2E Test", () => {
       return agent
         .delete(`${API_CONTENT_PREFIX}/lessons/${lesson["createdByContent"].id}`)
         .set("Authorization", `Bearer ${contentToken}`)
-        .expect(HttpStatus.OK)
-        .then(async () => {
+        .expect(async () => {
           const deleted = await lessonModel.findOne({ where: { id: lesson["createdByContent"].id } });
           expect(deleted).not.toBeNull();
           expect(deleted?.status).toEqual(LESSON_STATUS.HIDDEN);
-        });
+        })
+        .expect(HttpStatus.OK);
     });
 
     it("Should succeed due to user is admin (Hard delete)", async () => {
       return agent
         .delete(`${API_CONTENT_PREFIX}/lessons/${lesson["createdByAdmin"].id}?hardDelete=true`)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.OK)
-        .then(async () => {
+        .expect(async () => {
           const deleted = await lessonModel.findOne({ where: { id: lesson["createdByAdmin"].id } });
           expect(deleted).toBeNull();
-        });
+        })
+        .expect(HttpStatus.OK);
     });
 
     it("Should succeed due to user is admin (Hard delete)", async () => {
       return agent
         .delete(`${API_CONTENT_PREFIX}/lessons/${lesson["createdByContent"].id}?hardDelete=true`)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.OK)
-        .then(async () => {
+        .expect(async () => {
           const deleted = await lessonModel.findOne({ where: { id: lesson["createdByContent"].id } });
           expect(deleted).toBeNull();
-        });
+        })
+        .expect(HttpStatus.OK);
     });
   });
 
