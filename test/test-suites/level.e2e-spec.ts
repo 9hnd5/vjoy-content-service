@@ -62,26 +62,26 @@ describe("Level E2E test", () => {
       return agent
         .get(`${API_CONTENT_PREFIX}/levels`)
         .set("Authorization", `Bearer ${userToken}`)
-        .expect(HttpStatus.OK)
         .expect((res) => {
           const data = res.body.data;
           expect(data).toHaveProperty("count");
           expect(data).toHaveProperty("rows");
-        });
+        })
+        .expect(HttpStatus.OK);
     });
 
     it("should return pagination result correctly", () => {
       return agent
         .get(`${API_CONTENT_PREFIX}/levels/?page=1&pageSize=10`)
         .set("Authorization", `Bearer ${userToken}`)
-        .expect(HttpStatus.OK)
         .expect((res) => {
           const data = res.body.data;
           expect(data).toHaveProperty("count");
           expect(data).toHaveProperty("rows");
           expect(data.count).toBeGreaterThanOrEqual(0);
           expect(data.rows.length).toBeLessThanOrEqual(10);
-        });
+        })
+        .expect(HttpStatus.OK);
     });
   });
 });
