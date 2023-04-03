@@ -86,14 +86,17 @@ describe("Lessons E2E Test", () => {
         gameType: GAME_TYPE.WORD_BALLOON,
         difficulty: LESSON_DIFFICULTY.EASY,
         asset: {
-          bundle_url: 'https://fsfs.com/fsdf.bundle',
+          bundleUrl: 'https://fsfs.com/.unity_bundle',
           bg: 'file_name',
           cannon: 'file_name',
           balloons: [ { name: 'file_name', type: 'W', position: '2,1' } ],
-          behavior: 1,
-          wordLength: 2,
-          missingLetter: 3
-        }
+          behavior: 1
+        },
+        curriculum: [{
+          word: 'CAT',
+          difficulty: 0,
+          missingLetterCount: 3
+        }]
       };
     });
 
@@ -109,9 +112,9 @@ describe("Lessons E2E Test", () => {
         .expect(HttpStatus.FORBIDDEN);
     });
 
-    it("Should fail due to invalid asset.bundle_url", () => {
+    it("Should fail due to invalid asset.bundleUrl", () => {
       const invalidAsset = {
-        bundle_url: 'invalid url',
+        bundleUrl: 'invalid url',
         bg: 'file_name',
         cannon: 'file_name',
         balloons: [{ name: 'file_name.png', type: 'W', position: '2,1' }],
@@ -133,7 +136,7 @@ describe("Lessons E2E Test", () => {
 
     it("Should fail due to invalid image field", () => {
       const invalidAsset = {
-        bundle_url: 'https://fsfs.com/fsdf.bundle',
+        bundleUrl: 'https://fsfs.com/fsdf.bundle',
         bg: 'file_name.png',
         cannon: 'file_name',
         balloons: [{ name: 'file_name.png', type: 'W', position: '2,1' }],
@@ -155,7 +158,7 @@ describe("Lessons E2E Test", () => {
 
     it("Should fail due to invalid image field", () => {
       const invalidAsset = {
-        bundle_url: 'https://fsfs.com/fsdf.bundle',
+        bundleUrl: 'https://fsfs.com/.unity_bundle',
         bg: 'file_name.png',
         cannon: 'file_name',
         balloons: [{ name: 'file_name.png', type: 'W', position: '2,1' }],
