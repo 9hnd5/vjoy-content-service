@@ -1,10 +1,43 @@
-import { IsIn, IsInt, IsJSON, IsString, IsNotEmpty, IsOptional, IsArray, IsUrl, Length, ValidateIf, ValidateNested, Matches, IsObject} from "class-validator";
-import { Type } from 'class-transformer';
+import { Type } from "class-transformer";
+import {
+  IsArray,
+  IsIn,
+  IsInt,
+  IsJSON,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+  Length,
+  Matches,
+  ValidateIf,
+  ValidateNested
+} from "class-validator";
 
 import { GAME_TYPE, LESSON_DIFFICULTY, LESSON_STATUS } from "entities/lesson.entity";
 
+class CurriculumDataDto {
+  @IsString()
+  word: string;
+
+  @IsInt()
+  difficulty: number;
+
+  @IsInt()
+  missingLetterCount: number;
+}
+
+class CurriculumDto {
+  @IsString()
+  name: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CurriculumDataDto)
+  data: CurriculumDataDto[];
+}
+
 export class CreateLessonDto {
-  
   @Length(1, 255)
   name: string;
 
@@ -12,7 +45,7 @@ export class CreateLessonDto {
   @IsIn(Object.values(LESSON_STATUS))
   status?: number = LESSON_STATUS.SAVED;
 
-  @IsNotEmpty() 
+  @IsNotEmpty()
   @IsInt()
   unitId: number;
 
@@ -24,23 +57,22 @@ export class CreateLessonDto {
   @IsIn(Object.values(GAME_TYPE))
   gameType: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @ValidateIf((o) => o.gameType == GAME_TYPE.WORD_BALLOON)
   @ValidateNested()
   @Type(() => WordBalloonAssetDto)
-  asset?: any;
+  asset: any;
 
   @IsIn(Object.values(LESSON_DIFFICULTY))
   difficulty: number;
 
-  @IsArray()
-  @ValidateNested({ each: true })
+  @IsNotEmpty()
+  @ValidateNested()
   @Type(() => CurriculumDto)
-  curriculum: CurriculumDto[];
+  curriculum: CurriculumDto;
 }
 
 class WordBalloonAssetDto {
-
   @IsUrl()
   bundleUrl: string;
 
@@ -68,16 +100,4 @@ class BalloonDto {
 
   @IsString()
   position: string;
-}
-
-class CurriculumDto {
-  
-  @IsString()
-  word: string;
-
-  @IsInt()
-  difficulty: number;
-
-  @IsInt()
-  missingLetterCount: number;
 }

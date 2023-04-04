@@ -81,22 +81,27 @@ describe("Lessons E2E Test", () => {
     let createDto: CreateLessonDto;
     beforeAll(() => {
       createDto = {
-        name: 'Sample',
+        name: "Sample",
         unitId: unit.id,
         gameType: GAME_TYPE.WORD_BALLOON,
         difficulty: LESSON_DIFFICULTY.EASY,
         asset: {
-          bundleUrl: 'https://fsfs.com/.unity_bundle',
-          bg: 'file_name',
-          cannon: 'file_name',
-          balloons: [ { name: 'file_name', type: 'W', position: '2,1' } ],
-          behavior: 1
+          bundleUrl: "https://fsfs.com/.unity_bundle",
+          bg: "file_name",
+          cannon: "file_name",
+          balloons: [{ name: "file_name", type: "W", position: "2,1" }],
+          behavior: 1,
         },
-        curriculum: [{
-          word: 'CAT',
-          difficulty: 0,
-          missingLetterCount: 3
-        }]
+        curriculum: {
+          name: "file_sample.csv",
+          data: [
+            {
+              word: "CAT",
+              difficulty: 0,
+              missingLetterCount: 3,
+            },
+          ],
+        },
       };
     });
 
@@ -114,13 +119,13 @@ describe("Lessons E2E Test", () => {
 
     it("Should fail due to invalid asset.bundleUrl", () => {
       const invalidAsset = {
-        bundleUrl: 'invalid url',
-        bg: 'file_name',
-        cannon: 'file_name',
-        balloons: [{ name: 'file_name.png', type: 'W', position: '2,1' }],
+        bundleUrl: "invalid url",
+        bg: "file_name",
+        cannon: "file_name",
+        balloons: [{ name: "file_name.png", type: "W", position: "2,1" }],
         behavior: 1,
         wordLength: 2,
-        missingLetter: 3
+        missingLetter: 3,
       };
       return agent
         .post(`${API_CONTENT_PREFIX}/lessons`)
@@ -136,13 +141,13 @@ describe("Lessons E2E Test", () => {
 
     it("Should fail due to invalid image field", () => {
       const invalidAsset = {
-        bundleUrl: 'https://fsfs.com/fsdf.bundle',
-        bg: 'file_name.png',
-        cannon: 'file_name',
-        balloons: [{ name: 'file_name.png', type: 'W', position: '2,1' }],
+        bundleUrl: "https://fsfs.com/fsdf.bundle",
+        bg: "file_name.png",
+        cannon: "file_name",
+        balloons: [{ name: "file_name.png", type: "W", position: "2,1" }],
         behavior: 1,
         wordLength: 2,
-        missingLetter: 3
+        missingLetter: 3,
       };
       return agent
         .post(`${API_CONTENT_PREFIX}/lessons`)
@@ -158,13 +163,13 @@ describe("Lessons E2E Test", () => {
 
     it("Should fail due to invalid image field", () => {
       const invalidAsset = {
-        bundleUrl: 'https://fsfs.com/.unity_bundle',
-        bg: 'file_name.png',
-        cannon: 'file_name',
-        balloons: [{ name: 'file_name.png', type: 'W', position: '2,1' }],
+        bundleUrl: "https://fsfs.com/.unity_bundle",
+        bg: "file_name.png",
+        cannon: "file_name",
+        balloons: [{ name: "file_name.png", type: "W", position: "2,1" }],
         behavior: 1,
         wordLength: 2,
-        missingLetter: 3
+        missingLetter: 3,
       };
       return agent
         .post(`${API_CONTENT_PREFIX}/lessons`)
@@ -256,15 +261,14 @@ describe("Lessons E2E Test", () => {
         .expect((response) => {
           const { data } = response.body;
           expect(data.rows.length).toBeGreaterThan(0);
-          data.rows.forEach(lesson => {
+          data.rows.forEach((lesson) => {
             expect(lesson).toHaveProperty("difficulty");
             expect(lesson).toHaveProperty("curriculum");
             expect(lesson.status).toEqual(status);
             expect(lesson.gameType).toEqual(GAME_TYPE.WORD_BALLOON);
           });
-          
         })
-        .expect(HttpStatus.OK) ;
+        .expect(HttpStatus.OK);
     });
   });
 
