@@ -42,8 +42,8 @@ export type LessonAttributes = {
   unitId: number;
   difficulty: number;
   rules?: any;
-  asset?: any;
-  curriculum?: any;
+  asset: any;
+  curriculum: any;
   gameType: string;
   createdAt: Date;
   updatedAt: Date;
@@ -73,7 +73,7 @@ export class Lesson extends Model<LessonAttributes, LessonCreationAttributes> {
   rules?: any;
 
   @Column(DataType.JSONB)
-  asset?: any;
+  asset: any;
 
   @Column({ type: DataType.STRING(255), allowNull: false })
   gameType: string;
@@ -82,7 +82,7 @@ export class Lesson extends Model<LessonAttributes, LessonCreationAttributes> {
   difficulty: number;
 
   @Column(DataType.JSONB)
-  curriculum?: any;
+  curriculum: any;
 
   @CreatedAt
   createdAt: Date;
