@@ -72,6 +72,7 @@ describe("Units E2E Test", () => {
     let createDto: CreateUnitDto;
     beforeAll(() => {
       createDto = {
+        name: `unit-test-${generateNumber(6)}`,
         levelId: "eng-A2",
       };
     });

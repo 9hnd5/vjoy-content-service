@@ -21,7 +21,7 @@ export const UNIT_STATUS = {
 
 export type UnitAttributes = {
   id: number;
-  name?: string;
+  name: string;
   levelId: string;
   status: number;
   rules?: any;
@@ -37,7 +37,7 @@ export class Unit extends Model<UnitAttributes, UnitCreationAttributes> {
   id: number;
 
   @Column(DataType.STRING(255))
-  name?: string;
+  name: string;
 
   @Default(UNIT_STATUS.NEW)
   @Column({ type: DataType.INTEGER, allowNull: false })
