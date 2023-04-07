@@ -77,13 +77,114 @@ describe("Lessons E2E Test", () => {
     });
   });
 
+  describe("Create BUST_A_WORD Lesson (POST)api/lessons", () => {
+    let createDto: CreateLessonDto;
+    beforeAll(() => {
+      createDto = {
+        name: "Sample",
+        unitId: unit.id,
+        gameType: "BUST_A_WORD",
+        difficulty: LESSON_DIFFICULTY.EASY,
+        asset: {
+          bundleUrl: "https://fsfs.com/.unity_bundle",
+          bg: "file_name",
+          cannon: "file_name",
+          spheres: [{ type: "type", name: "name" }],
+        },
+        curriculum: {
+          name: "file_sample.csv",
+          data: [
+            {
+              word: "CAT",
+              difficulty: 0,
+              missingLetterCount: 3,
+            },
+          ],
+        },
+      };
+    });
+
+    it("Should fail due to user unauthorized", () => {
+      return agent.post(`${API_CONTENT_PREFIX}/lessons`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it("Should fail due to user is not admin or content editor", () => {
+      return agent
+        .post(`${API_CONTENT_PREFIX}/lessons`)
+        .send(createDto)
+        .set("Authorization", `Bearer ${userToken}`)
+        .expect(HttpStatus.FORBIDDEN);
+    });
+
+    it("Should fail due to empty asset", () => {
+      const invalidAsset = {};
+      return agent
+        .post(`${API_CONTENT_PREFIX}/lessons`)
+        .send({ ...createDto, asset: invalidAsset })
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect((res) => {
+          const { error } = res.body;
+          expect(error).not.toBeNull();
+          expect(error[0].code).toContain("asset");
+          expect(error[0].message).not.toBeNull();
+        });
+    });
+
+    it("Should fail due to invalid asset", () => {
+      const invalidAsset = {
+        bg: "bg.png",
+        cannon: "cannon.png",
+        spheres: [],
+        bundleUrl: "http",
+      };
+      return agent
+        .post(`${API_CONTENT_PREFIX}/lessons`)
+        .send({ ...createDto, asset: invalidAsset })
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect((res) => {
+          const { error } = res.body;
+          expect(error).not.toBeNull();
+          expect.arrayContaining(expect.objectContaining({ code: "asset.bg", message: expect.any(String) }));
+          expect.arrayContaining(expect.objectContaining({ code: "asset.cannon", message: expect.any(String) }));
+          expect.arrayContaining(expect.objectContaining({ code: "asset.spheres", message: expect.any(String) }));
+          expect.arrayContaining(expect.objectContaining({ code: "asset.bundleUrl", message: expect.any(String) }));
+        });
+    });
+
+    it("Should succeed due to user is admin", () => {
+      return agent
+        .post(`${API_CONTENT_PREFIX}/lessons`)
+        .send(createDto)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect((res) => {
+          const result = res.body.data;
+          expect(result.unitId).toBe(createDto.unitId);
+          expect(result.status).toBe(LESSON_STATUS.SAVED);
+        })
+        .expect(HttpStatus.CREATED);
+    });
+
+    it("Should succeed due to user is content editor", () => {
+      return agent
+        .post(`${API_CONTENT_PREFIX}/lessons`)
+        .send(createDto)
+        .set("Authorization", `Bearer ${contentToken}`)
+        .expect((res) => {
+          const result = res.body.data;
+          expect(result.unitId).toBe(createDto.unitId);
+          expect(result.status).toBe(LESSON_STATUS.SAVED);
+        })
+        .expect(HttpStatus.CREATED);
+    });
+  });
+
   describe("Create WORD_BALLOON Lesson (POST)api/lessons", () => {
     let createDto: CreateLessonDto;
     beforeAll(() => {
       createDto = {
         name: "Sample",
         unitId: unit.id,
-        gameType: GAME_TYPE.WORD_BALLOON,
+        gameType: "WORD_BALLOON",
         difficulty: LESSON_DIFFICULTY.EASY,
         asset: {
           bundleUrl: "https://fsfs.com/.unity_bundle",
@@ -467,6 +568,8 @@ describe("Lessons E2E Test", () => {
     await deleteUser({ id: parent.id, accessToken: adminToken });
 
     await unitModel.destroy({ where: { id: unit.id } });
+
+    await lessonModel.destroy({ where: { name: "Sample" }, force: true });
 
     await app.close();
   });
