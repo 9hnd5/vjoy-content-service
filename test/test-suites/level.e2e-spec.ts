@@ -84,4 +84,85 @@ describe("Level E2E test", () => {
         .expect(HttpStatus.OK);
     });
   });
+
+  describe("Find suggestion (Get)api/level-suggestion", () => {
+    it("should return fail due to the null query passed", () => {
+      return agent
+        .get(`${API_CONTENT_PREFIX}/level-suggestion`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect((res) => expectError(res.body))
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+
+    it("should return fail due to the invalid query passed", () => {
+      return agent
+        .get(`${API_CONTENT_PREFIX}/level-suggestion?filter[dob]=abc`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect((res) => expectError(res.body))
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+
+    it("should return English Pre A1 due to dob in 2015", () => {
+      return agent
+        .get(`${API_CONTENT_PREFIX}/level-suggestion?filter[dob]=02-09-2015`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect((res) => {
+          expect(res.body.data).toEqual({ id: "eng-preA1", name: "English Pre A1" });
+        });
+    });
+
+    it("should return English Pre A1 due to dob onwards 2015(bellow 8 years old)", () => {
+      return agent
+        .get(`${API_CONTENT_PREFIX}/level-suggestion?filter[dob]=02-09-2016`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect((res) => {
+          expect(res.body.data).toEqual({ id: "eng-preA1", name: "English Pre A1" });
+        });
+    });
+
+    it("should return English A1 due to dob in 2012", () => {
+      return agent
+        .get(`${API_CONTENT_PREFIX}/level-suggestion?filter[dob]=02-09-2012`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect((res) => {
+          expect(res.body.data).toEqual({ id: "eng-A1", name: "English A1" });
+        });
+    });
+
+    it("should return English A1 due to dob from 2012-2014", () => {
+      return agent
+        .get(`${API_CONTENT_PREFIX}/level-suggestion?filter[dob]=02-09-2013`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect((res) => {
+          expect(res.body.data).toEqual({ id: "eng-A1", name: "English A1" });
+        });
+    });
+
+    it("should return English A1 due to dob in 2014", () => {
+      return agent
+        .get(`${API_CONTENT_PREFIX}/level-suggestion?filter[dob]=02-09-2014`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect((res) => {
+          expect(res.body.data).toEqual({ id: "eng-A1", name: "English A1" });
+        });
+    });
+
+    it("should return English A2 due to dob in 2011", () => {
+      return agent
+        .get(`${API_CONTENT_PREFIX}/level-suggestion?filter[dob]=02-09-2011`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect((res) => {
+          expect(res.body.data).toEqual({ id: "eng-A2", name: "English A2" });
+        });
+    });
+
+    it("should return English A2 due to dob before 2011", () => {
+      return agent
+        .get(`${API_CONTENT_PREFIX}/level-suggestion?filter[dob]=02-09-2010`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect((res) => {
+          expect(res.body.data).toEqual({ id: "eng-A2", name: "English A2" });
+        });
+    });
+  });
 });
