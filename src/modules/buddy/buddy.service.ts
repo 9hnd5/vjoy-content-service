@@ -1,4 +1,4 @@
-import { BaseService, ROLE_CODE } from "@common";
+import { BaseService, ROLE_ID } from "@common";
 import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
 import { Buddy, BUDDY_STATUS } from "entities/buddy.entity";
@@ -48,7 +48,7 @@ export class BuddyService extends BaseService {
     if (!buddy) throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: id } }));
     if (hardDelete) {
       const signinUser = this.request.user!;
-      if (signinUser.roleCode !== ROLE_CODE.ADMIN)
+      if (signinUser.roleId !== ROLE_ID.ADMIN)
         throw new UnauthorizedException(this.i18n.t("message.NOT_PERMISSION"));
       return buddy.destroy();
     }

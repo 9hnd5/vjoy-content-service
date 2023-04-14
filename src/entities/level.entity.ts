@@ -12,6 +12,12 @@ export type LevelAttributes = {
   updatedAt: Date;
 };
 
+export const LEVEL_ID = {
+  ENG_PREA1: "eng-preA1",
+  ENG_A1: "eng-A1",
+  ENG_A2: "eng-A2",
+};
+
 type LevelCreationAttributes = Optional<LevelAttributes, "id" | "createdAt" | "updatedAt">;
 
 @Table({ tableName: "levels", schema: "content" })
