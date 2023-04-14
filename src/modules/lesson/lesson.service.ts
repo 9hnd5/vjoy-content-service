@@ -1,4 +1,4 @@
-import { BaseService, ROLE_CODE } from "@common";
+import { BaseService, ROLE_ID } from "@common";
 import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
 import { Lesson, LESSON_STATUS } from "entities/lesson.entity";
@@ -27,7 +27,7 @@ export class LessonService extends BaseService {
 
   findAll(query: FindLessonsQueryDto, unitId?: number) {
     const signinUser = this.request.user!;
-    if (!unitId && [ROLE_CODE.ADMIN, ROLE_CODE.CONTENT_EDITOR].indexOf(signinUser.roleCode) < 0)
+    if (!unitId && [ROLE_ID.ADMIN, ROLE_ID.CONTENT_EDITOR].indexOf(signinUser.roleId) < 0)
       throw new UnauthorizedException(this.i18n.t("message.NOT_PERMISSION"));
 
     const { limit, offset, sort: order } = query;
@@ -74,7 +74,7 @@ export class LessonService extends BaseService {
     if (!lesson) throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: id } }));
     if (hardDelete) {
       const signinUser = this.request.user!;
-      if (signinUser.roleCode !== ROLE_CODE.ADMIN)
+      if (signinUser.roleId !== ROLE_ID.ADMIN)
         throw new UnauthorizedException(this.i18n.t("message.NOT_PERMISSION"));
       return lesson.destroy();
     }

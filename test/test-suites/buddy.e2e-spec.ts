@@ -1,4 +1,4 @@
-import { API_TOKEN, createUser, deleteUser, generateNumber, ROLE_CODE, signin, User } from "@common";
+import { API_TOKEN, createUser, deleteUser, generateNumber, ROLE_ID, signin, User } from "@common";
 import { HttpStatus, INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { AppModule } from "app.module";
@@ -45,7 +45,7 @@ describe("Buddies E2E Test", () => {
         lastname: name,
         email: `${name}@gmail.com`,
         password: "123456",
-        roleCode: ROLE_CODE.PARENT,
+        roleId: ROLE_ID.PARENT,
       },
       accessToken: adminToken,
     });
@@ -57,7 +57,7 @@ describe("Buddies E2E Test", () => {
         lastname: name,
         email: `${name}@gmail.com`,
         password: "123456",
-        roleCode: ROLE_CODE.CONTENT_EDITOR,
+        roleId: ROLE_ID.CONTENT_EDITOR,
       },
       accessToken: adminToken,
     });
@@ -307,6 +307,6 @@ describe("Buddies E2E Test", () => {
     await deleteUser({ id: content.id, accessToken: adminToken });
     await deleteUser({ id: parent.id, accessToken: adminToken });
 
-    await app.close();
+    app && (await app.close());
   });
 });
