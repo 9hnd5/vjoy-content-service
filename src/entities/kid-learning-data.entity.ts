@@ -1,20 +1,20 @@
 import { Optional } from "sequelize";
-import { Column, CreatedAt, DataType, HasMany, Model, Table, UpdatedAt } from "sequelize-typescript";
-import { KidLesson } from "./kid-lesson.entity";
+import { Column, CreatedAt, DataType, HasMany, Model, PrimaryKey, Table, UpdatedAt } from "sequelize-typescript";
+import { KidLessonProgress } from "./kid-lesson-progress.entity";
 
-type KidAssetAttributes = {
-  id: number;
+type KidLearningDataAttributes = {
+  kidId: number;
   gem: number;
   coin: number;
   energy: number;
+  countBuyEnergy: number;
   currentLevelId?: number;
   currentUnitId?: number;
   buddyId?: number;
   buddyName?: string;
   learningGoal?: LearningGoal;
-  lastUpdatedEnergy?: Date;
+  lastUpdateEnergy?: Date;
   lastBuyEnergy?: Date;
-  countBuyEnergy?: number;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -24,11 +24,12 @@ export type LearningGoal = {
   w?: number[];
 };
 
-type KidAssetCreationAttributes = Optional<KidAssetAttributes, "id" | "createdAt" | "updatedAt">;
+type KidLearningDataCreationAttributes = Optional<KidLearningDataAttributes, "kidId" | "createdAt" | "updatedAt">;
 
-@Table({ tableName: "kid-assets", schema: "content" })
-export class KidAsset extends Model<KidAssetAttributes, KidAssetCreationAttributes> {
-  id: number; //kidId
+@Table({ tableName: "kid_learning_data", schema: "content" })
+export class KidLearningData extends Model<KidLearningDataAttributes, KidLearningDataCreationAttributes> {
+  @Column({ primaryKey: true })
+  kidId: number; //kidId
 
   @Column({ allowNull: false })
   gem: number;
@@ -38,6 +39,9 @@ export class KidAsset extends Model<KidAssetAttributes, KidAssetCreationAttribut
 
   @Column({ allowNull: false })
   energy: number;
+
+  @Column
+  countBuyEnergy: number;
 
   @Column
   currentLevelId?: number;
@@ -54,14 +58,11 @@ export class KidAsset extends Model<KidAssetAttributes, KidAssetCreationAttribut
   @Column(DataType.JSONB)
   learningGoal?: LearningGoal;
 
-  @Column
-  lastUpdatedEnergy?: Date;
+  @Column("timestamp")
+  lastUpdateEnergy?: Date;
 
-  @Column
+  @Column("timestamp")
   lastBuyEnergy?: Date;
-
-  @Column
-  countBuyEnergy?: number;
 
   @CreatedAt
   createdAt: Date;
@@ -69,6 +70,6 @@ export class KidAsset extends Model<KidAssetAttributes, KidAssetCreationAttribut
   @UpdatedAt
   updatedAt: Date;
 
-  @HasMany(() => KidLesson)
-  kidLessons: KidLesson[];
+  @HasMany(() => KidLessonProgress)
+  kidLessons: KidLessonProgress[];
 }
