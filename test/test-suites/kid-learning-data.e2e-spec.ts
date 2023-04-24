@@ -6,6 +6,7 @@ import { AppModule } from "app.module";
 import * as request from "supertest";
 import { API_CONTENT_PREFIX } from "../test.contants";
 import { KidLearningData } from "entities/kid-learning-data.entity";
+import { COST_COIN, ENERGY_BUY_WITH_COIN } from "modules/kid-learning-data/kid-learning-data.constants";
 
 describe("Kid Learning Data E2E", () => {
   let app: INestApplication;
@@ -45,7 +46,7 @@ describe("Kid Learning Data E2E", () => {
         coin: 1000,
         energy: 0,
         countBuyEnergy: 0,
-        lastBuyEnergy: new Date(),
+        lastBoughtEnergy: new Date(),
       });
       data = result.dataValues;
     });
@@ -57,36 +58,40 @@ describe("Kid Learning Data E2E", () => {
     it("should succeed buy the first time in a day", () => {
       return agent.post(`${API_CONTENT_PREFIX}/kid-learning-data/${data.kidId}/energy`).expect((res) => {
         const result = res.body.data;
-        expect(result.energy).toBe(60);
-        expect(result.coin).toBe(970);
+        expect(result.energy).toBe(data.energy + ENERGY_BUY_WITH_COIN);
+        expect(result.coin).toBe(data.coin - COST_COIN.FIRST_TIME);
         expect(result.countBuyEnergy).toBe(1);
+        data = result;
       });
     });
 
     it("should succeed buy the second time in a day", () => {
       return agent.post(`${API_CONTENT_PREFIX}/kid-learning-data/${data.kidId}/energy`).expect((res) => {
         const result = res.body.data;
-        expect(result.energy).toBe(120);
-        expect(result.coin).toBe(920);
+        expect(result.energy).toBe(data.energy + ENERGY_BUY_WITH_COIN);
+        expect(result.coin).toBe(data.coin - COST_COIN.SECOND_TIME);
         expect(result.countBuyEnergy).toBe(2);
+        data = result;
       });
     });
 
     it("should succeed buy the thirth time in a day", () => {
       return agent.post(`${API_CONTENT_PREFIX}/kid-learning-data/${data.kidId}/energy`).expect((res) => {
         const result = res.body.data;
-        expect(result.energy).toBe(180);
-        expect(result.coin).toBe(820);
+        expect(result.energy).toBe(data.energy + ENERGY_BUY_WITH_COIN);
+        expect(result.coin).toBe(data.coin - COST_COIN.THIRTH_TIME);
         expect(result.countBuyEnergy).toBe(3);
+        data = result;
       });
     });
 
     it("should succeed buy the fourth time in a day", () => {
       return agent.post(`${API_CONTENT_PREFIX}/kid-learning-data/${data.kidId}/energy`).expect((res) => {
         const result = res.body.data;
-        expect(result.energy).toBe(240);
-        expect(result.coin).toBe(720);
+        expect(result.energy).toBe(data.energy + ENERGY_BUY_WITH_COIN);
+        expect(result.coin).toBe(data.coin - COST_COIN.THIRTH_TIME);
         expect(result.countBuyEnergy).toBe(4);
+        data = result;
       });
     });
 
@@ -94,13 +99,14 @@ describe("Kid Learning Data E2E", () => {
       const now = new Date();
       const previous = new Date(now.getTime());
       previous.setDate(now.getDate() - 1);
-      await kidLearningDataModel.update({ lastBuyEnergy: previous }, { where: { kidId: data.kidId } });
+      await kidLearningDataModel.update({ lastBoughtEnergy: previous }, { where: { kidId: data.kidId } });
 
       return agent.post(`${API_CONTENT_PREFIX}/kid-learning-data/${data.kidId}/energy`).expect((res) => {
         const result = res.body.data;
-        expect(result.energy).toBe(300);
-        expect(result.coin).toBe(690);
+        expect(result.energy).toBe(data.energy + ENERGY_BUY_WITH_COIN);
+        expect(result.coin).toBe(data.coin - COST_COIN.FIRST_TIME);
         expect(result.countBuyEnergy).toBe(1);
+        data = result;
       });
     });
 

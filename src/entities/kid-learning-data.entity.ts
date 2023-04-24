@@ -13,8 +13,8 @@ type KidLearningDataAttributes = {
   buddyId?: number;
   buddyName?: string;
   learningGoal?: LearningGoal;
-  lastUpdateEnergy?: Date;
-  lastBuyEnergy?: Date;
+  lastUpdatedEnergy?: Date;
+  lastBoughtEnergy?: Date;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -26,7 +26,7 @@ export type LearningGoal = {
 
 type KidLearningDataCreationAttributes = Optional<KidLearningDataAttributes, "kidId" | "createdAt" | "updatedAt">;
 
-@Table({ tableName: "kid_learning_data", schema: "content" })
+@Table({ tableName: "kid_learning_data", schema: "content", version: true })
 export class KidLearningData extends Model<KidLearningDataAttributes, KidLearningDataCreationAttributes> {
   @Column({ primaryKey: true })
   kidId: number; //kidId
@@ -59,10 +59,10 @@ export class KidLearningData extends Model<KidLearningDataAttributes, KidLearnin
   learningGoal?: LearningGoal;
 
   @Column("timestamp")
-  lastUpdateEnergy?: Date;
+  lastUpdatedEnergy?: Date;
 
   @Column("timestamp")
-  lastBuyEnergy?: Date;
+  lastBoughtEnergy?: Date;
 
   @CreatedAt
   createdAt: Date;
