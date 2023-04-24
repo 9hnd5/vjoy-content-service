@@ -14,7 +14,7 @@ export type GameRuleAttributes = {
 
 type GameRuleCreationAttributes = Optional<GameRuleAttributes, "id">;
 
-@Table({ tableName: "game-rules", schema: "content" })
+@Table({ tableName: "game_rules", schema: "content" })
 export class GameRule extends Model<GameRuleAttributes, GameRuleCreationAttributes> {
   id: number;
 
