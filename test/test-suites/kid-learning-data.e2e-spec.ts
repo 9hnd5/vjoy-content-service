@@ -21,7 +21,7 @@ describe("Kid Learning Data E2E", () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      imports: [AppModule, SequelizeModule.forFeature([KidLearningData])],
+      imports: [AppModule],
     }).compile();
     kidLearningDataModel = moduleRef.get("KidLearningDataRepository");
     kidLessonProgresses = moduleRef.get("KidLessonProgressRepository");
@@ -219,7 +219,16 @@ describe("Kid Learning Data E2E", () => {
           });
       });
 
-      it(`should first play and win succeed ${item.toUpperCase()}`, () => {
+      it(`should fail due to invalid star = HARD at the first time ${item.toUpperCase()}`, () => {
+        return agent
+          .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
+          .send({ ...data, star: KID_LESSON_PROGRESS_STAR.HARD })
+          .expect((res) => {
+            expectError(res.body);
+          });
+      });
+
+      it(`should succeed due to first play and win ${item.toUpperCase()}`, () => {
         return agent
           .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
           .send(data)
@@ -236,7 +245,7 @@ describe("Kid Learning Data E2E", () => {
           });
       });
 
-      it(`should replay and win with same difficulty = EASY succeed ${item.toUpperCase()}`, () => {
+      it(`should succeed due to replay and win with same star = EASY ${item.toUpperCase()}`, () => {
         return agent
           .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
           .send(data)
@@ -253,7 +262,7 @@ describe("Kid Learning Data E2E", () => {
           });
       });
 
-      it(`should replay and fail with same difficulty = EASY succeed ${item.toUpperCase()}`, () => {
+      it(`should succeed due to replay and fail with same star = EASY ${item.toUpperCase()}`, () => {
         return agent
           .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
           .send({ ...data, isWin: false })
@@ -270,7 +279,14 @@ describe("Kid Learning Data E2E", () => {
           });
       });
 
-      it(`should replay and win with different difficulty = MEDIUM succeed ${item.toUpperCase()}`, () => {
+      it(`should fail due to replay with invalid star = HARD ${item.toUpperCase()}`, () => {
+        return agent
+          .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
+          .send({ ...data, star: KID_LESSON_PROGRESS_STAR.HARD })
+          .expect((res) => expectError(res.body));
+      });
+
+      it(`should succeed due to replay and win with different star = MEDIUM ${item.toUpperCase()}`, () => {
         return agent
           .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
           .send({ ...data, star: KID_LESSON_PROGRESS_STAR.MEDIUM })
@@ -287,7 +303,7 @@ describe("Kid Learning Data E2E", () => {
           });
       });
 
-      it(`should replay and win with different difficulty = MEDIUM succeed ${item.toUpperCase()}`, () => {
+      it(`should succeed due to replay and win with different star = MEDIUM ${item.toUpperCase()}`, () => {
         return agent
           .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
           .send({ ...data, star: KID_LESSON_PROGRESS_STAR.MEDIUM })
@@ -304,7 +320,7 @@ describe("Kid Learning Data E2E", () => {
           });
       });
 
-      it(`should replay and win with different difficulty = HARD succeed ${item.toUpperCase()}`, () => {
+      it(`should succeed due to replay and win with different star = HARD ${item.toUpperCase()}`, () => {
         return agent
           .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
           .send({ ...data, star: KID_LESSON_PROGRESS_STAR.HARD })
@@ -314,6 +330,24 @@ describe("Kid Learning Data E2E", () => {
             };
             expect(result.energy).toBe(learningData.energy - gameRule.energyCost);
             expect(result.coin).toBe(learningData.coin + gameRule.firstPlayReward);
+            expect(result.gem).toBe(0);
+
+            const lessonProgress = result.kidLessonProgresses.find((x) => x.learningDataId === result.kidId)!;
+            expect(lessonProgress.star).toBe(3);
+            learningData = result;
+          });
+      });
+
+      it(`should succeed due to replay and win with same star = HARD ${item.toUpperCase()}`, () => {
+        return agent
+          .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
+          .send({ ...data, star: KID_LESSON_PROGRESS_STAR.HARD })
+          .expect((res) => {
+            const result = res.body.data as KidLearningData["dataValues"] & {
+              kidLessonProgresses: KidLessonProgress["dataValues"][];
+            };
+            expect(result.energy).toBe(learningData.energy - gameRule.energyCost);
+            expect(result.coin).toBe(learningData.coin + gameRule.replaySuccessReward);
             expect(result.gem).toBe(1);
 
             const lessonProgress = result.kidLessonProgresses.find((x) => x.learningDataId === result.kidId)!;
@@ -322,7 +356,7 @@ describe("Kid Learning Data E2E", () => {
           });
       });
 
-      it(`should replay and win with different difficulty = MEDIUM succeed ${item.toUpperCase()}`, () => {
+      it(`should succeed due to replay and win with different star = MEDIUM ${item.toUpperCase()}`, () => {
         return agent
           .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
           .send({ ...data, star: KID_LESSON_PROGRESS_STAR.MEDIUM })
@@ -340,7 +374,7 @@ describe("Kid Learning Data E2E", () => {
           });
       });
 
-      it(`should replay and fail with different difficulty = HARD succeed ${item.toUpperCase()}`, () => {
+      it(`should succeed due to replay and fail with different star = HARD ${item.toUpperCase()}`, () => {
         return agent
           .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
           .send({ ...data, isWin: false, star: KID_LESSON_PROGRESS_STAR.HARD })

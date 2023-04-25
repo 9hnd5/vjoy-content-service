@@ -63,26 +63,39 @@ export class KidLearningDataService extends BaseService {
     let energyCost = gameRule?.energyCost ?? 0;
     let gemReward = 1;
 
+    if (energyCost > learningData.energy) throw new BadRequestException(this.i18n.t("message.NOT_ENOUGH_ENERGY"));
+
     learningData.energy -= energyCost;
     learningData.currentLevelId = levelId;
     learningData.currentUnitId = unitId;
     //First play and win and star = 1
     if (!lessonProgress && isWin) {
+      if (star !== KID_LESSON_PROGRESS_STAR.EASY)
+        throw new BadRequestException(this.i18n.t("message.INVALID_LESSON_UNLOCK"));
+        
       learningData.coin += firstPlayCoinReward;
-
       this.kidLessonProgressModel.create({
         levelId,
         unitId,
         lessonId,
         type,
         learningDataId,
-        star: KID_LESSON_PROGRESS_STAR.EASY,
+        star,
+        isGemUnlocked: false,
       });
     }
     //First play and fail and star = 1
 
     //Replay and win with the same star
     if (lessonProgress && isWin && lessonProgress.star === star) {
+      if (
+        star === KID_LESSON_PROGRESS_STAR.HARD &&
+        lessonProgress.star === KID_LESSON_PROGRESS_STAR.HARD &&
+        !lessonProgress.isGemUnlocked
+      ) {
+        learningData.gem += gemReward;
+        lessonProgress.isGemUnlocked = true;
+      }
       learningData.coin += replaySuccessCoinReward;
     }
     //Replay and fail with the same star
@@ -92,7 +105,8 @@ export class KidLearningDataService extends BaseService {
 
     //Replay and win with different star
     if (lessonProgress && isWin && lessonProgress.star !== star) {
-      if (star === KID_LESSON_PROGRESS_STAR.HARD) learningData.gem += gemReward;
+      const gapStar = star - lessonProgress.star;
+      if (gapStar > 0 && gapStar >= 2) throw new BadRequestException(this.i18n.t("message.INVALID_LESSON_UNLOCK"));
 
       if (star > lessonProgress.star) {
         learningData.coin += firstPlayCoinReward;
