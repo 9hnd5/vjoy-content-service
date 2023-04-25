@@ -5,7 +5,7 @@ import { KidLearningData } from "entities/kid-learning-data.entity";
 import dayjs from "dayjs";
 import isToday from "dayjs/plugin/isToday";
 import { COST_COIN, ENERGY_BUY_WITH_COIN } from "./kid-learning-data.constants";
-import { KID_LESSON_PROGRESS_DIFFICULTY, KidLessonProgress } from "entities/kid-lesson-progress.entity";
+import { KID_LESSON_PROGRESS_STAR, KidLessonProgress } from "entities/kid-lesson-progress.entity";
 import { CreateUpdateKidLessonProgressDto } from "./dto/create-update-kid-lesson-progress.dto";
 import { GameRule } from "entities/game-rule.entity";
 dayjs.extend(isToday);
@@ -46,7 +46,7 @@ export class KidLearningDataService extends BaseService {
   };
 
   createUpdateLearningProgress = async (learningDataId: number, data: CreateUpdateKidLessonProgressDto) => {
-    const { isWin, levelId, unitId, lessonId, difficulty, type } = data;
+    const { isWin, levelId, unitId, lessonId, star, type } = data;
     const learningData = await this.kidLearningDataModel.findByPk(learningDataId);
     if (!learningData)
       throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: learningDataId } }));
@@ -66,7 +66,7 @@ export class KidLearningDataService extends BaseService {
     learningData.energy -= energyCost;
     learningData.currentLevelId = levelId;
     learningData.currentUnitId = unitId;
-    //First play and win and difficulty = 1
+    //First play and win and star = 1
     if (!lessonProgress && isWin) {
       learningData.coin += firstPlayCoinReward;
 
@@ -76,37 +76,35 @@ export class KidLearningDataService extends BaseService {
         lessonId,
         type,
         learningDataId,
-        currentDifficulty: difficulty,
-        star: 1,
+        star: KID_LESSON_PROGRESS_STAR.EASY,
       });
     }
-    //First play and fail and difficulty = 1
+    //First play and fail and star = 1
 
-    //Replay and win with the same difficulty
-    if (lessonProgress && isWin && lessonProgress.currentDifficulty === difficulty) {
+    //Replay and win with the same star
+    if (lessonProgress && isWin && lessonProgress.star === star) {
       learningData.coin += replaySuccessCoinReward;
     }
-    //Replay and fail with the same difficulty
-    if (lessonProgress && !isWin && lessonProgress.currentDifficulty === difficulty) {
+    //Replay and fail with the same star
+    if (lessonProgress && !isWin && lessonProgress.star === star) {
       learningData.coin += replayFailureCoinReward;
     }
 
-    //Replay and win with different difficulty
-    if (lessonProgress && isWin && lessonProgress.currentDifficulty !== difficulty) {
-      if (difficulty === KID_LESSON_PROGRESS_DIFFICULTY.HARD) learningData.gem += gemReward;
+    //Replay and win with different star
+    if (lessonProgress && isWin && lessonProgress.star !== star) {
+      if (star === KID_LESSON_PROGRESS_STAR.HARD) learningData.gem += gemReward;
 
-      if (difficulty > lessonProgress.currentDifficulty) {
+      if (star > lessonProgress.star) {
         learningData.coin += firstPlayCoinReward;
         lessonProgress.star += 1;
-        lessonProgress.currentDifficulty = difficulty;
       } else {
         learningData.coin += replaySuccessCoinReward;
       }
     }
 
-    //Replay and fail with different difficulty
-    if (lessonProgress && !isWin && lessonProgress.currentDifficulty !== difficulty) {
-      if (difficulty <= lessonProgress.currentDifficulty) {
+    //Replay and fail with different star
+    if (lessonProgress && !isWin && lessonProgress.star !== star) {
+      if (star <= lessonProgress.star) {
         learningData.coin += replayFailureCoinReward;
       }
     }

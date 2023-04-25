@@ -7,7 +7,6 @@ type KidLessonProgressAttributes = {
   learningDataId: number;
   levelId?: number;
   unitId?: number;
-  currentDifficulty: number;
   lessonId: number;
   star: number;
   type: "challenge" | "lesson";
@@ -17,7 +16,7 @@ type KidLessonProgressAttributes = {
 
 type KidLessonProgressCreationAttributes = Optional<KidLessonProgressAttributes, "id" | "createdAt" | "updatedAt">;
 
-export const KID_LESSON_PROGRESS_DIFFICULTY = {
+export const KID_LESSON_PROGRESS_STAR = {
   EASY: 1,
   MEDIUM: 2,
   HARD: 3,
@@ -38,9 +37,6 @@ export class KidLessonProgress extends Model<KidLessonProgressAttributes, KidLes
 
   @Column
   unitId: number;
-
-  @Column
-  currentDifficulty: number;
 
   @Column({ allowNull: false })
   lessonId: number;

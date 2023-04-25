@@ -13,7 +13,7 @@ export class CreateUpdateKidLessonProgressDto {
   lessonId: number;
 
   @IsIn([1, 2, 3])
-  difficulty: number;
+  star: number;
 
   @Matches(/^(lesson|challenge)$/)
   type: "lesson" | "challenge";

@@ -8,7 +8,7 @@ import { API_CONTENT_PREFIX } from "../test.contants";
 import { KidLearningData } from "entities/kid-learning-data.entity";
 import { COST_COIN, ENERGY_BUY_WITH_COIN } from "modules/kid-learning-data/kid-learning-data.constants";
 import { GameRule } from "entities/game-rule.entity";
-import { KID_LESSON_PROGRESS_DIFFICULTY, KidLessonProgress } from "entities/kid-lesson-progress.entity";
+import { KID_LESSON_PROGRESS_STAR, KidLessonProgress } from "entities/kid-lesson-progress.entity";
 
 describe("Kid Learning Data E2E", () => {
   let app: INestApplication;
@@ -141,7 +141,7 @@ describe("Kid Learning Data E2E", () => {
         levelId: -generateNumber(4),
         unitId: -generateNumber(4),
         lessonId: 1,
-        difficulty: KID_LESSON_PROGRESS_DIFFICULTY.EASY,
+        star: KID_LESSON_PROGRESS_STAR.EASY,
         type: item,
         isWin: true,
       };
@@ -204,7 +204,7 @@ describe("Kid Learning Data E2E", () => {
                 message: expect.any(String),
               },
               {
-                code: "difficulty",
+                code: "star",
                 message: expect.any(String),
               },
               {
@@ -273,7 +273,7 @@ describe("Kid Learning Data E2E", () => {
       it(`should replay and win with different difficulty = MEDIUM succeed ${item.toUpperCase()}`, () => {
         return agent
           .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
-          .send({ ...data, difficulty: KID_LESSON_PROGRESS_DIFFICULTY.MEDIUM })
+          .send({ ...data, star: KID_LESSON_PROGRESS_STAR.MEDIUM })
           .expect((res) => {
             const result = res.body.data as KidLearningData["dataValues"] & {
               kidLessonProgresses: KidLessonProgress["dataValues"][];
@@ -290,7 +290,7 @@ describe("Kid Learning Data E2E", () => {
       it(`should replay and win with different difficulty = MEDIUM succeed ${item.toUpperCase()}`, () => {
         return agent
           .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
-          .send({ ...data, difficulty: KID_LESSON_PROGRESS_DIFFICULTY.MEDIUM })
+          .send({ ...data, star: KID_LESSON_PROGRESS_STAR.MEDIUM })
           .expect((res) => {
             const result = res.body.data as KidLearningData["dataValues"] & {
               kidLessonProgresses: KidLessonProgress["dataValues"][];
@@ -307,7 +307,7 @@ describe("Kid Learning Data E2E", () => {
       it(`should replay and win with different difficulty = HARD succeed ${item.toUpperCase()}`, () => {
         return agent
           .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
-          .send({ ...data, difficulty: KID_LESSON_PROGRESS_DIFFICULTY.HARD })
+          .send({ ...data, star: KID_LESSON_PROGRESS_STAR.HARD })
           .expect((res) => {
             const result = res.body.data as KidLearningData["dataValues"] & {
               kidLessonProgresses: KidLessonProgress["dataValues"][];
@@ -325,7 +325,7 @@ describe("Kid Learning Data E2E", () => {
       it(`should replay and win with different difficulty = MEDIUM succeed ${item.toUpperCase()}`, () => {
         return agent
           .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
-          .send({ ...data, difficulty: KID_LESSON_PROGRESS_DIFFICULTY.MEDIUM })
+          .send({ ...data, star: KID_LESSON_PROGRESS_STAR.MEDIUM })
           .expect((res) => {
             const result = res.body.data as KidLearningData["dataValues"] & {
               kidLessonProgresses: KidLessonProgress["dataValues"][];
@@ -343,7 +343,7 @@ describe("Kid Learning Data E2E", () => {
       it(`should replay and fail with different difficulty = HARD succeed ${item.toUpperCase()}`, () => {
         return agent
           .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
-          .send({ ...data, isWin: false, difficulty: KID_LESSON_PROGRESS_DIFFICULTY.HARD })
+          .send({ ...data, isWin: false, star: KID_LESSON_PROGRESS_STAR.HARD })
           .expect((res) => {
             const result = res.body.data as KidLearningData["dataValues"] & {
               kidLessonProgresses: KidLessonProgress["dataValues"][];
