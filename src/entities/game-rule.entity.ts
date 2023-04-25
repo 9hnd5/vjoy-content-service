@@ -3,9 +3,9 @@ import { Column, DataType, Model, Table } from "sequelize-typescript";
 
 export type GameRuleAttributes = {
   id: number;
-  levelId?: string;
-  unitId?: string;
-  type: string;
+  levelId: number;
+  unitId: number;
+  type: "lesson" | "challenge";
   firstPlayReward: number;
   replayFailureReward: number;
   replaySuccessReward: number;
@@ -14,18 +14,18 @@ export type GameRuleAttributes = {
 
 type GameRuleCreationAttributes = Optional<GameRuleAttributes, "id">;
 
-@Table({ tableName: "game_rules", schema: "content" })
+@Table({ tableName: "game_rules", schema: "content", timestamps: false })
 export class GameRule extends Model<GameRuleAttributes, GameRuleCreationAttributes> {
   id: number;
 
-  @Column({ type: DataType.STRING(255) })
-  levelId?: string;
-
-  @Column({ type: DataType.STRING(255) })
-  unitId?: string;
+  @Column({ type: DataType.STRING(255), allowNull: false })
+  levelId: number;
 
   @Column({ type: DataType.STRING(255), allowNull: false })
-  type: string;
+  unitId: number;
+
+  @Column({ type: DataType.STRING(255), allowNull: false })
+  type: "lesson" | "challenge";
 
   @Column({ allowNull: false })
   firstPlayReward: number;

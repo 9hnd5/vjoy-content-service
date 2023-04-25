@@ -4,9 +4,10 @@ import { KidLearningData } from "./kid-learning-data.entity";
 
 type KidLessonProgressAttributes = {
   id: number;
-  kidLearningDataId: number;
+  learningDataId: number;
   levelId?: number;
   unitId?: number;
+  currentDifficulty: number;
   lessonId: number;
   star: number;
   type: "challenge" | "lesson";
@@ -16,14 +17,20 @@ type KidLessonProgressAttributes = {
 
 type KidLessonProgressCreationAttributes = Optional<KidLessonProgressAttributes, "id" | "createdAt" | "updatedAt">;
 
+export const KID_LESSON_PROGRESS_DIFFICULTY = {
+  EASY: 1,
+  MEDIUM: 2,
+  HARD: 3,
+};
+
 @Table({ tableName: "kid_lesson_progress", schema: "content" })
 export class KidLessonProgress extends Model<KidLessonProgressAttributes, KidLessonProgressCreationAttributes> {
   id: number;
 
   @ForeignKey(() => KidLearningData)
-  kidLearningDataId: number;
+  learningDataId: number;
 
-  @BelongsTo(() => KidLearningData)
+  @BelongsTo(() => KidLearningData, { onDelete: "CASCADE", onUpdate: "CASCADE" })
   kidAsset: KidLearningData;
 
   @Column
@@ -31,6 +38,9 @@ export class KidLessonProgress extends Model<KidLessonProgressAttributes, KidLes
 
   @Column
   unitId: number;
+
+  @Column
+  currentDifficulty: number;
 
   @Column({ allowNull: false })
   lessonId: number;
