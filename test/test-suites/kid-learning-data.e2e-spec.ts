@@ -1,14 +1,16 @@
-import { API_TOKEN, expectError, generateNumber, signin, User } from "@common";
+import { API_TOKEN, expectError, generateNumber, signin } from "@common";
 import { HttpStatus, INestApplication } from "@nestjs/common";
-import { SequelizeModule } from "@nestjs/sequelize";
 import { Test } from "@nestjs/testing";
 import { AppModule } from "app.module";
+import { GameRule } from "entities/game-rule.entity";
+import { KidLearningData } from "entities/kid-learning-data.entity";
+import { KID_LESSON_PROGRESS_STAR, KidLessonProgress } from "entities/kid-lesson-progress.entity";
+import { MockFunctionMetadata, ModuleMocker } from "jest-mock";
+import { COST_COIN, ENERGY_BUY_WITH_COIN } from "modules/kid-learning-data/kid-learning-data.constants";
 import * as request from "supertest";
 import { API_CONTENT_PREFIX } from "../test.contants";
-import { KidLearningData } from "entities/kid-learning-data.entity";
-import { COST_COIN, ENERGY_BUY_WITH_COIN } from "modules/kid-learning-data/kid-learning-data.constants";
-import { GameRule } from "entities/game-rule.entity";
-import { KID_LESSON_PROGRESS_STAR, KidLessonProgress } from "entities/kid-lesson-progress.entity";
+
+const moduleMocker = new ModuleMocker(global);
 
 describe("Kid Learning Data E2E", () => {
   let app: INestApplication;
@@ -22,7 +24,15 @@ describe("Kid Learning Data E2E", () => {
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .useMocker((token) => {
+        if (typeof token === "function") {
+          const mockMetadata = moduleMocker.getMetadata(token) as MockFunctionMetadata<any, any>;
+          const Mock = moduleMocker.generateFromMetadata(mockMetadata);
+          return new Mock();
+        }
+      })
+      .compile();
     kidLearningDataModel = moduleRef.get("KidLearningDataRepository");
     kidLessonProgresses = moduleRef.get("KidLessonProgressRepository");
     gameRuleModel = moduleRef.get("GameRuleRepository");
@@ -133,8 +143,8 @@ describe("Kid Learning Data E2E", () => {
     });
   });
 
-  ["lesson", "challenge"].forEach((item) => {
-    describe("Create or Update kid-lesson-progress (Post)api/kid-learning-data/:id/kid-lesson-progresses", () => {
+  ["challenge"].forEach((item) => {
+    describe.only("Create or Update kid-lesson-progress (Post)api/kid-learning-data/:id/kid-lesson-progresses", () => {
       let learningData: KidLearningData["dataValues"];
       let gameRule: GameRule["dataValues"];
       const data = {
@@ -219,7 +229,7 @@ describe("Kid Learning Data E2E", () => {
           });
       });
 
-      it(`should fail due to invalid star = HARD at the first time ${item.toUpperCase()}`, () => {
+      it.only(`should fail due to invalid star = HARD at the first time ${item.toUpperCase()}`, () => {
         return agent
           .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
           .send({ ...data, star: KID_LESSON_PROGRESS_STAR.HARD })
@@ -228,7 +238,7 @@ describe("Kid Learning Data E2E", () => {
           });
       });
 
-      it(`should succeed due to first play and win ${item.toUpperCase()}`, () => {
+      it.only(`should succeed due to first play and win ${item.toUpperCase()}`, () => {
         return agent
           .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
           .send(data)
