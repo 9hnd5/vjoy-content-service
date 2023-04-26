@@ -70,6 +70,6 @@ export class KidLearningData extends Model<KidLearningDataAttributes, KidLearnin
   @UpdatedAt
   updatedAt: Date;
 
-  @HasMany(() => KidLessonProgress)
-  kidLessons: KidLessonProgress[];
+  @HasMany(() => KidLessonProgress, { onDelete: "CASCADE", onUpdate: "CASCADE" })
+  kidLessonProgresses: KidLessonProgress[];
 }

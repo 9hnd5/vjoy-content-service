@@ -7,5 +7,7 @@
   "USER_DELETED": "Người dùng đã bị xoá",
   "USER_DEACTIVATED": "Người dùng không hoạt động",
   "USER_NOT_EXISTS": "Người dùng không tồn tại",
-  "NOT_ENOUGH_COIN": "Không đủ coin"
+  "NOT_ENOUGH_COIN": "Không đủ coin",
+  "INVALID_LESSON_UNLOCK": "Không thể mở bài học này",
+  "NOT_ENOUGH_ENERGY": "Không đủ năng lượng"
 }

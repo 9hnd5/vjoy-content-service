@@ -1,12 +1,16 @@
-import { API_TOKEN, expectError, generateNumber, signin, User } from "@common";
+import { API_TOKEN, expectError, generateNumber, signin } from "@common";
 import { HttpStatus, INestApplication } from "@nestjs/common";
-import { SequelizeModule } from "@nestjs/sequelize";
 import { Test } from "@nestjs/testing";
 import { AppModule } from "app.module";
+import { GameRule } from "entities/game-rule.entity";
+import { KidLearningData } from "entities/kid-learning-data.entity";
+import { KID_LESSON_PROGRESS_STAR, KidLessonProgress } from "entities/kid-lesson-progress.entity";
+import { MockFunctionMetadata, ModuleMocker } from "jest-mock";
+import { COST_COIN, ENERGY_BUY_WITH_COIN } from "modules/kid-learning-data/kid-learning-data.constants";
 import * as request from "supertest";
 import { API_CONTENT_PREFIX } from "../test.contants";
-import { KidLearningData } from "entities/kid-learning-data.entity";
-import { COST_COIN, ENERGY_BUY_WITH_COIN } from "modules/kid-learning-data/kid-learning-data.constants";
+
+const moduleMocker = new ModuleMocker(global);
 
 describe("Kid Learning Data E2E", () => {
   let app: INestApplication;
@@ -14,12 +18,24 @@ describe("Kid Learning Data E2E", () => {
   const apiToken = API_TOKEN;
   let agent: request.SuperAgentTest;
   let kidLearningDataModel: typeof KidLearningData;
+  let kidLessonProgresses: typeof KidLessonProgress;
+  let gameRuleModel: typeof GameRule;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      imports: [AppModule, SequelizeModule.forFeature([KidLearningData])],
-    }).compile();
+      imports: [AppModule],
+    })
+      .useMocker((token) => {
+        if (typeof token === "function") {
+          const mockMetadata = moduleMocker.getMetadata(token) as MockFunctionMetadata<any, any>;
+          const Mock = moduleMocker.generateFromMetadata(mockMetadata);
+          return new Mock();
+        }
+      })
+      .compile();
     kidLearningDataModel = moduleRef.get("KidLearningDataRepository");
+    kidLessonProgresses = moduleRef.get("KidLessonProgressRepository");
+    gameRuleModel = moduleRef.get("GameRuleRepository");
     app = moduleRef.createNestApplication();
     app.enableVersioning();
     app.setGlobalPrefix("api");
@@ -124,6 +140,267 @@ describe("Kid Learning Data E2E", () => {
         .post(`${API_CONTENT_PREFIX}/kid-learning-data/-1/energy`)
         .expect((res) => expectError(res.body))
         .expect(HttpStatus.NOT_FOUND);
+    });
+  });
+
+  ["challenge"].forEach((item) => {
+    describe.only("Create or Update kid-lesson-progress (Post)api/kid-learning-data/:id/kid-lesson-progresses", () => {
+      let learningData: KidLearningData["dataValues"];
+      let gameRule: GameRule["dataValues"];
+      const data = {
+        levelId: -generateNumber(4),
+        unitId: -generateNumber(4),
+        lessonId: 1,
+        star: KID_LESSON_PROGRESS_STAR.EASY,
+        type: item,
+        isWin: true,
+      };
+
+      beforeAll(async () => {
+        const learningDataResult = await kidLearningDataModel.create({
+          kidId: -generateNumber(4),
+          gem: 0,
+          coin: 0,
+          energy: 1000,
+          countBuyEnergy: 0,
+          lastBoughtEnergy: new Date(),
+        });
+        learningData = learningDataResult.dataValues;
+
+        const gamRuleResult = await gameRuleModel.bulkCreate([
+          {
+            levelId: data.levelId,
+            unitId: data.unitId,
+            type: "lesson",
+            firstPlayReward: 5,
+            replayFailureReward: 1,
+            replaySuccessReward: 3,
+            energyCost: 6,
+          },
+          {
+            levelId: data.levelId,
+            unitId: data.unitId,
+            type: "challenge",
+            firstPlayReward: 5,
+            replayFailureReward: 1,
+            replaySuccessReward: 3,
+            energyCost: 6,
+          },
+        ]);
+        gameRule = gamRuleResult.find((x) => x.type === data.type)!;
+      });
+
+      afterAll(async () => {
+        await kidLearningDataModel.destroy({ where: { kidId: learningData.kidId }, force: true });
+
+        await kidLessonProgresses.destroy({ where: { learningDataId: learningData.kidId }, force: true });
+
+        await gameRuleModel.destroy({
+          where: { levelId: gameRule.levelId, unitId: gameRule.unitId, type: gameRule.type },
+          force: true,
+        });
+      });
+
+      it(`should fail due to invalid data ${item.toUpperCase()}`, () => {
+        return agent
+          .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
+          .send({})
+          .expect((res) => {
+            expectError(res.body);
+            const error = res.body.error;
+            expect(error).toEqual([
+              {
+                code: "lessonId",
+                message: expect.any(String),
+              },
+              {
+                code: "star",
+                message: expect.any(String),
+              },
+              {
+                code: "type",
+                message: expect.any(String),
+              },
+              {
+                code: "isWin",
+                message: expect.any(String),
+              },
+            ]);
+          });
+      });
+
+      it.only(`should fail due to invalid star = HARD at the first time ${item.toUpperCase()}`, () => {
+        return agent
+          .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
+          .send({ ...data, star: KID_LESSON_PROGRESS_STAR.HARD })
+          .expect((res) => {
+            expectError(res.body);
+          });
+      });
+
+      it.only(`should succeed due to first play and win ${item.toUpperCase()}`, () => {
+        return agent
+          .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
+          .send(data)
+          .expect((res) => {
+            const result = res.body.data as KidLearningData["dataValues"] & {
+              kidLessonProgresses: KidLessonProgress["dataValues"][];
+            };
+            expect(result.energy).toBe(learningData.energy - gameRule.energyCost);
+            expect(result.coin).toBe(learningData.coin + gameRule.firstPlayReward);
+
+            const lessonProgress = result.kidLessonProgresses.find((x) => x.learningDataId === result.kidId)!;
+            expect(lessonProgress.star).toBe(1);
+            learningData = result;
+          });
+      });
+
+      it(`should succeed due to replay and win with same star = EASY ${item.toUpperCase()}`, () => {
+        return agent
+          .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
+          .send(data)
+          .expect((res) => {
+            const result = res.body.data as KidLearningData["dataValues"] & {
+              kidLessonProgresses: KidLessonProgress["dataValues"][];
+            };
+            expect(result.energy).toBe(learningData.energy - gameRule.energyCost);
+            expect(result.coin).toBe(learningData.coin + gameRule.replaySuccessReward);
+
+            const lessonProgress = result.kidLessonProgresses.find((x) => x.learningDataId === result.kidId)!;
+            expect(lessonProgress.star).toBe(1);
+            learningData = result;
+          });
+      });
+
+      it(`should succeed due to replay and fail with same star = EASY ${item.toUpperCase()}`, () => {
+        return agent
+          .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
+          .send({ ...data, isWin: false })
+          .expect((res) => {
+            const result = res.body.data as KidLearningData["dataValues"] & {
+              kidLessonProgresses: KidLessonProgress["dataValues"][];
+            };
+            expect(result.energy).toBe(learningData.energy - gameRule.energyCost);
+            expect(result.coin).toBe(learningData.coin + gameRule.replayFailureReward);
+
+            const lessonProgress = result.kidLessonProgresses.find((x) => x.learningDataId === result.kidId)!;
+            expect(lessonProgress.star).toBe(1);
+            learningData = result;
+          });
+      });
+
+      it(`should fail due to replay with invalid star = HARD ${item.toUpperCase()}`, () => {
+        return agent
+          .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
+          .send({ ...data, star: KID_LESSON_PROGRESS_STAR.HARD })
+          .expect((res) => expectError(res.body));
+      });
+
+      it(`should succeed due to replay and win with different star = MEDIUM ${item.toUpperCase()}`, () => {
+        return agent
+          .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
+          .send({ ...data, star: KID_LESSON_PROGRESS_STAR.MEDIUM })
+          .expect((res) => {
+            const result = res.body.data as KidLearningData["dataValues"] & {
+              kidLessonProgresses: KidLessonProgress["dataValues"][];
+            };
+            expect(result.energy).toBe(learningData.energy - gameRule.energyCost);
+            expect(result.coin).toBe(learningData.coin + gameRule.firstPlayReward);
+
+            const lessonProgress = result.kidLessonProgresses.find((x) => x.learningDataId === result.kidId)!;
+            expect(lessonProgress.star).toBe(2);
+            learningData = result;
+          });
+      });
+
+      it(`should succeed due to replay and win with different star = MEDIUM ${item.toUpperCase()}`, () => {
+        return agent
+          .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
+          .send({ ...data, star: KID_LESSON_PROGRESS_STAR.MEDIUM })
+          .expect((res) => {
+            const result = res.body.data as KidLearningData["dataValues"] & {
+              kidLessonProgresses: KidLessonProgress["dataValues"][];
+            };
+            expect(result.energy).toBe(learningData.energy - gameRule.energyCost);
+            expect(result.coin).toBe(learningData.coin + gameRule.replaySuccessReward);
+
+            const lessonProgress = result.kidLessonProgresses.find((x) => x.learningDataId === result.kidId)!;
+            expect(lessonProgress.star).toBe(2);
+            learningData = result;
+          });
+      });
+
+      it(`should succeed due to replay and win with different star = HARD ${item.toUpperCase()}`, () => {
+        return agent
+          .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
+          .send({ ...data, star: KID_LESSON_PROGRESS_STAR.HARD })
+          .expect((res) => {
+            const result = res.body.data as KidLearningData["dataValues"] & {
+              kidLessonProgresses: KidLessonProgress["dataValues"][];
+            };
+            expect(result.energy).toBe(learningData.energy - gameRule.energyCost);
+            expect(result.coin).toBe(learningData.coin + gameRule.firstPlayReward);
+            expect(result.gem).toBe(0);
+
+            const lessonProgress = result.kidLessonProgresses.find((x) => x.learningDataId === result.kidId)!;
+            expect(lessonProgress.star).toBe(3);
+            learningData = result;
+          });
+      });
+
+      it(`should succeed due to replay and win with same star = HARD ${item.toUpperCase()}`, () => {
+        return agent
+          .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
+          .send({ ...data, star: KID_LESSON_PROGRESS_STAR.HARD })
+          .expect((res) => {
+            const result = res.body.data as KidLearningData["dataValues"] & {
+              kidLessonProgresses: KidLessonProgress["dataValues"][];
+            };
+            expect(result.energy).toBe(learningData.energy - gameRule.energyCost);
+            expect(result.coin).toBe(learningData.coin + gameRule.replaySuccessReward);
+            expect(result.gem).toBe(1);
+
+            const lessonProgress = result.kidLessonProgresses.find((x) => x.learningDataId === result.kidId)!;
+            expect(lessonProgress.star).toBe(3);
+            learningData = result;
+          });
+      });
+
+      it(`should succeed due to replay and win with different star = MEDIUM ${item.toUpperCase()}`, () => {
+        return agent
+          .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
+          .send({ ...data, star: KID_LESSON_PROGRESS_STAR.MEDIUM })
+          .expect((res) => {
+            const result = res.body.data as KidLearningData["dataValues"] & {
+              kidLessonProgresses: KidLessonProgress["dataValues"][];
+            };
+            expect(result.energy).toBe(learningData.energy - gameRule.energyCost);
+            expect(result.coin).toBe(learningData.coin + gameRule.replaySuccessReward);
+            expect(result.gem).toBe(1);
+
+            const lessonProgress = result.kidLessonProgresses.find((x) => x.learningDataId === result.kidId)!;
+            expect(lessonProgress.star).toBe(3);
+            learningData = result;
+          });
+      });
+
+      it(`should succeed due to replay and fail with different star = HARD ${item.toUpperCase()}`, () => {
+        return agent
+          .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
+          .send({ ...data, isWin: false, star: KID_LESSON_PROGRESS_STAR.HARD })
+          .expect((res) => {
+            const result = res.body.data as KidLearningData["dataValues"] & {
+              kidLessonProgresses: KidLessonProgress["dataValues"][];
+            };
+            expect(result.energy).toBe(learningData.energy - gameRule.energyCost);
+            expect(result.coin).toBe(learningData.coin + gameRule.replayFailureReward);
+            expect(result.gem).toBe(1);
+
+            const lessonProgress = result.kidLessonProgresses.find((x) => x.learningDataId === result.kidId)!;
+            expect(lessonProgress.star).toBe(3);
+            learningData = result;
+          });
+      });
     });
   });
 });
