@@ -4,6 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import { SequelizeModule } from "@nestjs/sequelize";
 import { camelCase } from "lodash";
 import { BuddyModule } from "modules/buddy/buddy.module";
+import { GameRuleModule } from "modules/game-rule/game-rule.module";
 import { KidLearningDataModule } from "modules/kid-learning-data/kid-learning-data.module";
 import { LessonModule } from "modules/lesson/lesson.module";
 import { LevelModule } from "modules/level/level.module";
@@ -40,6 +41,7 @@ const coreEntityPath = path.join(__dirname, "..", "nest-common-module/entities/*
     LessonModule,
     LevelModule,
     BuddyModule,
+    GameRuleModule,
     KidLearningDataModule,
   ],
   controllers: [],
