@@ -5,12 +5,10 @@ import { AppModule } from "app.module";
 import { GameRule } from "entities/game-rule.entity";
 import { KidLearningData } from "entities/kid-learning-data.entity";
 import { KID_LESSON_PROGRESS_STAR, KidLessonProgress } from "entities/kid-lesson-progress.entity";
-import { MockFunctionMetadata, ModuleMocker } from "jest-mock";
 import { COST_COIN, ENERGY_BUY_WITH_COIN } from "modules/kid-learning-data/kid-learning-data.constants";
 import * as request from "supertest";
 import { API_CONTENT_PREFIX } from "../test.contants";
 
-const moduleMocker = new ModuleMocker(global);
 
 describe("Kid Learning Data E2E", () => {
   let app: INestApplication;
@@ -25,14 +23,7 @@ describe("Kid Learning Data E2E", () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     })
-      .useMocker((token) => {
-        if (typeof token === "function") {
-          const mockMetadata = moduleMocker.getMetadata(token) as MockFunctionMetadata<any, any>;
-          const Mock = moduleMocker.generateFromMetadata(mockMetadata);
-          return new Mock();
-        }
-      })
-      .compile();
+    .compile();
     kidLearningDataModel = moduleRef.get("KidLearningDataRepository");
     kidLessonProgresses = moduleRef.get("KidLessonProgressRepository");
     gameRuleModel = moduleRef.get("GameRuleRepository");
@@ -143,7 +134,7 @@ describe("Kid Learning Data E2E", () => {
     });
   });
 
-  ["challenge"].forEach((item) => {
+  ["lesson", "challenge"].forEach((item) => {
     describe.only("Create or Update kid-lesson-progress (Post)api/kid-learning-data/:id/kid-lesson-progresses", () => {
       let learningData: KidLearningData["dataValues"];
       let gameRule: GameRule["dataValues"];
@@ -167,27 +158,16 @@ describe("Kid Learning Data E2E", () => {
         });
         learningData = learningDataResult.dataValues;
 
-        const gamRuleResult = await gameRuleModel.bulkCreate([
-          {
-            levelId: data.levelId,
-            unitId: data.unitId,
-            type: "lesson",
-            firstPlayReward: 5,
-            replayFailureReward: 1,
-            replaySuccessReward: 3,
-            energyCost: 6,
-          },
-          {
-            levelId: data.levelId,
-            unitId: data.unitId,
-            type: "challenge",
-            firstPlayReward: 5,
-            replayFailureReward: 1,
-            replaySuccessReward: 3,
-            energyCost: 6,
-          },
-        ]);
-        gameRule = gamRuleResult.find((x) => x.type === data.type)!;
+        const gamRuleResult = await gameRuleModel.create({
+          levelId: data.levelId,
+          unitId: data.unitId,
+          type: item as any,
+          firstPlayReward: 5,
+          replayFailureReward: 1,
+          replaySuccessReward: 3,
+          energyCost: 6,
+        });
+        gameRule = gamRuleResult["dataValues"];
       });
 
       afterAll(async () => {
@@ -229,7 +209,7 @@ describe("Kid Learning Data E2E", () => {
           });
       });
 
-      it.only(`should fail due to invalid star = HARD at the first time ${item.toUpperCase()}`, () => {
+      it(`should fail due to invalid star = HARD at the first time ${item.toUpperCase()}`, () => {
         return agent
           .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
           .send({ ...data, star: KID_LESSON_PROGRESS_STAR.HARD })
@@ -238,7 +218,7 @@ describe("Kid Learning Data E2E", () => {
           });
       });
 
-      it.only(`should succeed due to first play and win ${item.toUpperCase()}`, () => {
+      it(`should succeed due to first play and win ${item.toUpperCase()}`, () => {
         return agent
           .post(`${API_CONTENT_PREFIX}/kid-learning-data/${learningData.kidId}/kid-lesson-progresses`)
           .send(data)
