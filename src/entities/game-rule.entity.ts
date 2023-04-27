@@ -10,6 +10,7 @@ export type GameRuleAttributes = {
   replayFailureReward: number;
   replaySuccessReward: number;
   energyCost: number;
+  unlockingRequirement?: number;
 };
 
 type GameRuleCreationAttributes = Optional<GameRuleAttributes, "id">;
@@ -38,4 +39,7 @@ export class GameRule extends Model<GameRuleAttributes, GameRuleCreationAttribut
 
   @Column({ allowNull: false })
   energyCost: number;
+
+  @Column
+  unlockingRequirement?: number;
 }

@@ -38,4 +38,10 @@ export class UnitController {
   remove(@Param("id") id: number, @Query("hardDelete") hardDelete: boolean) {
     return this.unitsService.remove(id, hardDelete);
   }
+
+  @Authorize({ action: "read", resource: "units" })
+  @Get(":id/unlock-final-challenge")
+  unlockFinalChallenge(@Param("id") id: number) {
+    return this.unitsService.unlockFinalChallenge(id);
+  }
 }

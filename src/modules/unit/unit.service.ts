@@ -7,10 +7,17 @@ import { isNil } from "lodash";
 import { CreateUnitDto } from "./dto/create-unit.dto";
 import { FindUnitsQueryDto } from "./dto/find-units-query.dto";
 import { UpdateUnitDto } from "./dto/update-unit.dto";
+import { GameRule } from "entities/game-rule.entity";
+import { KidLessonProgress } from "entities/kid-lesson-progress.entity";
 
 @Injectable()
 export class UnitService extends BaseService {
-  constructor(@InjectModel(Level) private levelModel: typeof Level, @InjectModel(Unit) private unitModel: typeof Unit) {
+  constructor(
+    @InjectModel(Level) private levelModel: typeof Level,
+    @InjectModel(Unit) private unitModel: typeof Unit,
+    @InjectModel(GameRule) private gameRuleModel: typeof GameRule,
+    @InjectModel(KidLessonProgress) private kidLessonProgressModel: typeof KidLessonProgress
+  ) {
     super();
   }
 
@@ -64,10 +71,27 @@ export class UnitService extends BaseService {
     if (!unit) throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: id } }));
     if (hardDelete) {
       const signinUser = this.request.user!;
-      if (signinUser.roleId !== ROLE_ID.ADMIN)
-        throw new UnauthorizedException(this.i18n.t("message.NOT_PERMISSION"));
+      if (signinUser.roleId !== ROLE_ID.ADMIN) throw new UnauthorizedException(this.i18n.t("message.NOT_PERMISSION"));
       return unit.destroy();
     }
     return (await unit.update({ status: UNIT_STATUS.HIDE })).dataValues;
+  }
+
+  async unlockFinalChallenge(unitId: number) {
+    const gameRule = await this.gameRuleModel.findOne({
+      where: { unitId, type: "challenge" },
+    });
+
+    if (!gameRule) return false;
+
+    const unlockingRequirement = gameRule.unlockingRequirement ?? 0;
+    if (unlockingRequirement < 0) return false;
+
+    const stars = await this.kidLessonProgressModel.sum("star", {
+      where: { levelId: gameRule.levelId, type: "lesson" },
+    });
+    if (stars < unlockingRequirement) return false;
+
+    return true;
   }
 }
