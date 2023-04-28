@@ -138,7 +138,7 @@ describe("Kid Learning Data E2E", () => {
     });
   });
 
-  describe("Update energy(Post) api/kid-learning-data/:kidId/energy", () => {
+  describe.only("Update energy(Post) api/kid-learning-data/:kidId/energy", () => {
     let data: KidLearningData["dataValues"];
 
     beforeAll(async () => {
@@ -147,7 +147,7 @@ describe("Kid Learning Data E2E", () => {
         kidId: -generateNumber(4),
         gem: 1000,
         coin: 1000,
-        energy: 95,
+        energy: 119,
         countBuyEnergy: 0,
         lastBoughtEnergy: new Date(),
         lastUpdatedEnergy: previous5Minute,
@@ -163,6 +163,17 @@ describe("Kid Learning Data E2E", () => {
       return agent.patch(`${API_CONTENT_PREFIX}/kid-learning-data/${data.kidId}/energy`).expect((res) => {
         const result = res.body.data;
         expect(result.energy).toBe(data.energy + 5 * ENERGY_PER_MINUTE);
+        data = result;
+      });
+    });
+
+    it("should succeed update energy auto less than 5 minutes", async () => {
+      const previous4Minute = new Date(Date.now() - 4 * 60 * 1000);
+      await kidLearningDataModel.update({ lastUpdatedEnergy: previous4Minute }, { where: { kidId: data.kidId } });
+
+      return agent.patch(`${API_CONTENT_PREFIX}/kid-learning-data/${data.kidId}/energy`).expect((res) => {
+        const result = res.body.data;
+        expect(result.energy).toBe(data.energy);
         data = result;
       });
     });

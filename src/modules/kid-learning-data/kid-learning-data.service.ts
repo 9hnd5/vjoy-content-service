@@ -55,14 +55,17 @@ export class KidLearningDataService extends BaseService {
 
     if (energy) {
       learningData.energy += energy;
+      learningData.lastUpdatedEnergy = new Date();
     } else {
-      const newEnergy = minutes * ENERGY_PER_MINUTE + learningData.energy;
-      learningData.energy = newEnergy >= MAX_ENERGY ? MAX_ENERGY : newEnergy;
+      if (minutes >= 5) {
+        const newEnergy = minutes * ENERGY_PER_MINUTE + learningData.energy;
+        learningData.energy = newEnergy >= MAX_ENERGY ? MAX_ENERGY : newEnergy;
+        learningData.lastUpdatedEnergy = new Date();
+      }
     }
 
     if (learningData.energy < 0) throw new BadRequestException(this.i18n.t("message.NOT_ENOUGH_ENERGY"));
 
-    learningData.lastUpdatedEnergy = new Date();
     return learningData.save();
   };
 

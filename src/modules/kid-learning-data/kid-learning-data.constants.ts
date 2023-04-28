@@ -8,4 +8,4 @@ export const ENERGY_BUY_WITH_COIN = 60;
 
 export const MAX_ENERGY = 120;
 
-export const ENERGY_PER_MINUTE = 5;
+export const ENERGY_PER_MINUTE = 1/5;
