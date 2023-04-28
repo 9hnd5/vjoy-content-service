@@ -5,10 +5,14 @@ import { AppModule } from "app.module";
 import { GameRule } from "entities/game-rule.entity";
 import { KidLearningData } from "entities/kid-learning-data.entity";
 import { KID_LESSON_PROGRESS_STAR, KidLessonProgress } from "entities/kid-lesson-progress.entity";
-import { COST_COIN, ENERGY_BUY_WITH_COIN } from "modules/kid-learning-data/kid-learning-data.constants";
+import {
+  COST_COIN,
+  ENERGY_BUY_WITH_COIN,
+  ENERGY_PER_MINUTE,
+  MAX_ENERGY,
+} from "modules/kid-learning-data/kid-learning-data.constants";
 import * as request from "supertest";
 import { API_CONTENT_PREFIX } from "../test.contants";
-
 
 describe("Kid Learning Data E2E", () => {
   let app: INestApplication;
@@ -22,8 +26,7 @@ describe("Kid Learning Data E2E", () => {
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
-    })
-    .compile();
+    }).compile();
     kidLearningDataModel = moduleRef.get("KidLearningDataRepository");
     kidLessonProgresses = moduleRef.get("KidLessonProgressRepository");
     gameRuleModel = moduleRef.get("GameRuleRepository");
@@ -54,6 +57,7 @@ describe("Kid Learning Data E2E", () => {
         energy: 0,
         countBuyEnergy: 0,
         lastBoughtEnergy: new Date(),
+        lastUpdatedEnergy: new Date(),
       });
       data = result.dataValues;
     });
@@ -134,8 +138,77 @@ describe("Kid Learning Data E2E", () => {
     });
   });
 
+  describe("Update energy(Post) api/kid-learning-data/:kidId/energy", () => {
+    let data: KidLearningData["dataValues"];
+
+    beforeAll(async () => {
+      const previous5Minute = new Date(Date.now() - 5 * 60 * 1000);
+      const result = await kidLearningDataModel.create({
+        kidId: -generateNumber(4),
+        gem: 1000,
+        coin: 1000,
+        energy: 95,
+        countBuyEnergy: 0,
+        lastBoughtEnergy: new Date(),
+        lastUpdatedEnergy: previous5Minute,
+      });
+      data = result.dataValues;
+    });
+
+    afterAll(async () => {
+      await kidLearningDataModel.destroy({ where: { kidId: data.kidId }, force: true });
+    });
+
+    it("should succeed update energy auto after 5 minutes", () => {
+      return agent.patch(`${API_CONTENT_PREFIX}/kid-learning-data/${data.kidId}/energy`).expect((res) => {
+        const result = res.body.data;
+        expect(result.energy).toBe(data.energy + 5 * ENERGY_PER_MINUTE);
+        data = result;
+      });
+    });
+
+    it("should succeed update energy auto after 5 minutes but maximum 120", () => {
+      return agent.patch(`${API_CONTENT_PREFIX}/kid-learning-data/${data.kidId}/energy`).expect((res) => {
+        const result = res.body.data;
+        expect(result.energy).toBe(MAX_ENERGY);
+        data = result;
+      });
+    });
+
+    it("should succeed update energy manual", () => {
+      return agent
+        .patch(`${API_CONTENT_PREFIX}/kid-learning-data/${data.kidId}/energy`)
+        .send({ energy: -25 })
+        .expect((res) => {
+          const result = res.body.data;
+          expect(result.energy).toBe(data.energy - 25);
+          data = result;
+        });
+    });
+
+    it("should fail due to invalid data", () => {
+      return agent
+        .patch(`${API_CONTENT_PREFIX}/kid-learning-data/${data.kidId}/energy`)
+        .send({ energy: 25 })
+        .expect((res) => expectError(res.body));
+    });
+
+    it("should fail due to invalid kidId", () => {
+      return agent
+        .patch(`${API_CONTENT_PREFIX}/kid-learning-data/${-11}/energy`)
+        .expect((res) => expectError(res.body));
+    });
+
+    it("should fail due to invalid data(energy = -1000)", () => {
+      return agent
+        .patch(`${API_CONTENT_PREFIX}/kid-learning-data/${data.kidId}/energy`)
+        .send({ energy: -1000 })
+        .expect((res) => expectError(res.body));
+    });
+  });
+
   ["lesson", "challenge"].forEach((item) => {
-    describe.only("Create or Update kid-lesson-progress (Post)api/kid-learning-data/:id/kid-lesson-progresses", () => {
+    describe("Create or Update kid-lesson-progress (Post)api/kid-learning-data/:id/kid-lesson-progresses", () => {
       let learningData: KidLearningData["dataValues"];
       let gameRule: GameRule["dataValues"];
       const data = {
@@ -155,6 +228,7 @@ describe("Kid Learning Data E2E", () => {
           energy: 1000,
           countBuyEnergy: 0,
           lastBoughtEnergy: new Date(),
+          lastUpdatedEnergy: new Date(),
         });
         learningData = learningDataResult.dataValues;
 

@@ -1,7 +1,8 @@
 import { Authorize, Controller } from "@common";
-import { Body, Param, Post } from "@nestjs/common";
+import { Body, Param, Patch, Post } from "@nestjs/common";
 import { KidLearningDataService } from "./kid-learning-data.service";
 import { CreateUpdateKidLessonProgressDto } from "./dto/create-update-kid-lesson-progress.dto";
+import { UpdateEnergyDto } from "./dto/update-energy.dto";
 
 @Controller("kid-learning-data")
 export class KidLearningDataController {
@@ -11,6 +12,12 @@ export class KidLearningDataController {
   @Post("/:id/energy")
   buyEnergy(@Param("id") id: number) {
     return this.kidLearningDataService.buyEnergy(id);
+  }
+
+  @Authorize({ resource: "kid-learning-data", action: "update" })
+  @Patch("/:id/energy")
+  updateEnergy(@Param("id") id: number, @Body() data: UpdateEnergyDto) {
+    return this.kidLearningDataService.updateEnergy(id, data.energy);
   }
 
   @Authorize({ resource: "kid-lesson-progresses", action: "create" })
