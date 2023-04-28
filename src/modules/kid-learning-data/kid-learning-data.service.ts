@@ -59,7 +59,7 @@ export class KidLearningDataService extends BaseService {
     } else {
       if (minutes >= 5) {
         const newEnergy = minutes * ENERGY_PER_MINUTE + learningData.energy;
-        learningData.energy = newEnergy >= MAX_ENERGY ? MAX_ENERGY : newEnergy;
+        learningData.energy = Math.floor(newEnergy >= MAX_ENERGY ? MAX_ENERGY : newEnergy);
         learningData.lastUpdatedEnergy = new Date();
       }
     }
