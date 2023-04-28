@@ -3,7 +3,7 @@ import { SequelizeModule } from "@nestjs/sequelize";
 import { Level } from "entities/level.entity";
 import { Unit } from "entities/unit.entity";
 import { UnitController } from "./unit.controller";
-import { UnitService as UnitService } from "./unit.service";
+import { UnitService } from "./unit.service";
 
 @Module({
   imports: [SequelizeModule.forFeature([Level, Unit])],

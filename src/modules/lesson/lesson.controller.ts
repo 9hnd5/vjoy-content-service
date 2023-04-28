@@ -44,4 +44,10 @@ export class LessonController {
   remove(@Param("id") id: number, @Query("hardDelete") hardDelete: boolean) {
     return this.lessonService.remove(id, hardDelete);
   }
+
+  @Authorize({ action: "read", resource: "lessons" })
+  @Get("final-challenges/:id/unlock")
+  unlockFinalChallenge(@Param("id") id: number) {
+    return this.lessonService.unlockFinalChallenge(id);
+  }
 }

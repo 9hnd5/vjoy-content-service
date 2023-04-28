@@ -2,7 +2,7 @@ import { BaseService, ROLE_ID } from "@common";
 import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
 import { Level } from "entities/level.entity";
-import { Unit, UNIT_STATUS } from "entities/unit.entity";
+import { UNIT_STATUS, Unit } from "entities/unit.entity";
 import { isNil } from "lodash";
 import { CreateUnitDto } from "./dto/create-unit.dto";
 import { FindUnitsQueryDto } from "./dto/find-units-query.dto";
@@ -64,8 +64,7 @@ export class UnitService extends BaseService {
     if (!unit) throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: id } }));
     if (hardDelete) {
       const signinUser = this.request.user!;
-      if (signinUser.roleId !== ROLE_ID.ADMIN)
-        throw new UnauthorizedException(this.i18n.t("message.NOT_PERMISSION"));
+      if (signinUser.roleId !== ROLE_ID.ADMIN) throw new UnauthorizedException(this.i18n.t("message.NOT_PERMISSION"));
       return unit.destroy();
     }
     return (await unit.update({ status: UNIT_STATUS.HIDE })).dataValues;
