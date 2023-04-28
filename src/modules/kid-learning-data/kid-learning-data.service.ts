@@ -4,7 +4,7 @@ import { InjectModel } from "@nestjs/sequelize";
 import { KidLearningData } from "entities/kid-learning-data.entity";
 import dayjs from "dayjs";
 import isToday from "dayjs/plugin/isToday";
-import { COST_COIN, ENERGY_BUY_WITH_COIN } from "./kid-learning-data.constants";
+import { COST_COIN, ENERGY_BUY_WITH_COIN, ENERGY_PER_MINUTE, MAX_ENERGY } from "./kid-learning-data.constants";
 import { KID_LESSON_PROGRESS_STAR, KidLessonProgress } from "entities/kid-lesson-progress.entity";
 import { CreateUpdateKidLessonProgressDto } from "./dto/create-update-kid-lesson-progress.dto";
 import { GameRule } from "entities/game-rule.entity";
@@ -45,6 +45,28 @@ export class KidLearningDataService extends BaseService {
     kidAsset.energy += ENERGY_BUY_WITH_COIN;
 
     return kidAsset.save();
+  };
+
+  updateEnergy = async (id: number, energy?: number) => {
+    const learningData = await this.kidLearningDataModel.findByPk(id);
+    if (!learningData) throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: id } }));
+
+    const minutes = dayjs(new Date()).diff(learningData.lastUpdatedEnergy, "minutes");
+
+    if (energy) {
+      learningData.energy += energy;
+      learningData.lastUpdatedEnergy = new Date();
+    } else {
+      if (minutes >= 5) {
+        const newEnergy = minutes * ENERGY_PER_MINUTE + learningData.energy;
+        learningData.energy = Math.floor(newEnergy >= MAX_ENERGY ? MAX_ENERGY : newEnergy);
+        learningData.lastUpdatedEnergy = new Date();
+      }
+    }
+
+    if (learningData.energy < 0) throw new BadRequestException(this.i18n.t("message.NOT_ENOUGH_ENERGY"));
+
+    return learningData.save();
   };
 
   createUpdateLearningProgress = async (learningDataId: number, data: CreateUpdateKidLessonProgressDto) => {

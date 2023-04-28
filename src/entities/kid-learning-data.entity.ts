@@ -13,7 +13,7 @@ type KidLearningDataAttributes = {
   buddyId?: number;
   buddyName?: string;
   learningGoal?: LearningGoal;
-  lastUpdatedEnergy?: Date;
+  lastUpdatedEnergy: Date;
   lastBoughtEnergy?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -59,7 +59,7 @@ export class KidLearningData extends Model<KidLearningDataAttributes, KidLearnin
   learningGoal?: LearningGoal;
 
   @Column("timestamp")
-  lastUpdatedEnergy?: Date;
+  lastUpdatedEnergy: Date;
 
   @Column("timestamp")
   lastBoughtEnergy?: Date;
