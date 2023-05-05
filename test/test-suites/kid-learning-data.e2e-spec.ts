@@ -138,7 +138,7 @@ describe("Kid Learning Data E2E", () => {
     });
   });
 
-  describe.only("Update energy(Post) api/kid-learning-data/:kidId/energy", () => {
+  describe("Update energy(Post) api/kid-learning-data/:kidId/energy", () => {
     let data: KidLearningData["dataValues"];
 
     beforeAll(async () => {
