@@ -9,10 +9,11 @@ import { KID_LESSON_PROGRESS_STAR, KidLessonProgress } from "entities/kid-lesson
 import { CreateUpdateKidLessonProgressDto } from "./dto/create-update-kid-lesson-progress.dto";
 import { GameRule } from "entities/game-rule.entity";
 import { Sequelize } from "sequelize-typescript";
+import { I18nTranslations } from "i18n/i18n.generated";
 dayjs.extend(isToday);
 
 @Injectable()
-export class KidLearningDataService extends BaseService {
+export class KidLearningDataService extends BaseService<I18nTranslations> {
   constructor(
     @InjectModel(KidLearningData) private kidLearningDataModel: typeof KidLearningData,
     @InjectModel(KidLessonProgress) private kidLessonProgressModel: typeof KidLessonProgress,
@@ -38,7 +39,7 @@ export class KidLearningDataService extends BaseService {
       kidAsset.countBuyEnergy = 1;
     }
 
-    if (coinCost > kidAsset.coin) throw new BadRequestException(this.i18n.t("message.NOT_ENOUGH_COIN"));
+    if (coinCost > kidAsset.coin) throw new BadRequestException(this.i18n.t("error.NOT_ENOUGH_COIN"));
 
     kidAsset.coin -= coinCost;
     kidAsset.lastBoughtEnergy = new Date();
@@ -64,7 +65,7 @@ export class KidLearningDataService extends BaseService {
       }
     }
 
-    if (learningData.energy < 0) throw new BadRequestException(this.i18n.t("message.NOT_ENOUGH_ENERGY"));
+    if (learningData.energy < 0) throw new BadRequestException(this.i18n.t("error.NOT_ENOUGH_ENERGY"));
 
     return learningData.save();
   };
@@ -90,7 +91,7 @@ export class KidLearningDataService extends BaseService {
         let energyCost = gameRule?.energyCost ?? 0;
         let gemReward = 1;
 
-        if (energyCost > learningData.energy) throw new BadRequestException(this.i18n.t("message.NOT_ENOUGH_ENERGY"));
+        if (energyCost > learningData.energy) throw new BadRequestException(this.i18n.t("error.NOT_ENOUGH_ENERGY"));
 
         learningData.energy -= energyCost;
         learningData.currentLevelId = levelId;
@@ -98,7 +99,7 @@ export class KidLearningDataService extends BaseService {
         //First play and win and star = 1
         if (!lessonProgress && isWin) {
           if (star !== KID_LESSON_PROGRESS_STAR.EASY)
-            throw new BadRequestException(this.i18n.t("message.INVALID_LESSON_UNLOCK"));
+            throw new BadRequestException(this.i18n.t("error.INVALID_LESSON_UNLOCK"));
 
           learningData.coin += firstPlayCoinReward;
           this.kidLessonProgressModel.create(
@@ -136,7 +137,7 @@ export class KidLearningDataService extends BaseService {
         //Replay and win with different star
         if (lessonProgress && isWin && lessonProgress.star !== star) {
           const gapStar = star - lessonProgress.star;
-          if (gapStar > 0 && gapStar >= 2) throw new BadRequestException(this.i18n.t("message.INVALID_LESSON_UNLOCK"));
+          if (gapStar > 0 && gapStar >= 2) throw new BadRequestException(this.i18n.t("error.INVALID_LESSON_UNLOCK"));
 
           if (star > lessonProgress.star) {
             learningData.coin += firstPlayCoinReward;
