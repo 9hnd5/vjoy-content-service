@@ -2,10 +2,11 @@ import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
+import { EnvironmentService } from "@common";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const configService = app.get(ConfigService);
+  const envService = app.get(EnvironmentService);
   app.enableCors();
   app.enableVersioning();
   app.setGlobalPrefix("api");
@@ -18,6 +19,6 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api/v1/dev/content/api-docs", app, document);
-  await app.listen(configService.get<number>("PORT")!);
+  await app.listen(envService.get("PORT")!);
 }
 bootstrap();
