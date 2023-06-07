@@ -10,6 +10,7 @@ import { CreateUpdateKidLessonProgressDto } from "./dto/create-update-kid-lesson
 import { GameRule } from "entities/game-rule.entity";
 import { Sequelize } from "sequelize-typescript";
 import { I18nTranslations } from "i18n/i18n.generated";
+import { CreateKidLearningDataDto } from "./dto/create-kid-learning-data.dto";
 dayjs.extend(isToday);
 
 @Injectable()
@@ -22,6 +23,10 @@ export class KidLearningDataService extends BaseService<I18nTranslations> {
   ) {
     super();
   }
+
+  create = async (data: CreateKidLearningDataDto) => {
+    return this.kidLearningDataModel.create({ ...data });
+  };
 
   buyEnergy = async (id: number) => {
     const kidAsset = await this.kidLearningDataModel.findByPk(id);
