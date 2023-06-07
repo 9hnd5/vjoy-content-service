@@ -1,5 +1,5 @@
 import { Optional } from "sequelize";
-import { Column, CreatedAt, DataType, HasMany, Model, PrimaryKey, Table, UpdatedAt } from "sequelize-typescript";
+import { Column, DataType, HasMany, Model, Table } from "sequelize-typescript";
 import { KidLessonProgress } from "./kid-lesson-progress.entity";
 
 type KidLearningDataAttributes = {
@@ -13,10 +13,8 @@ type KidLearningDataAttributes = {
   buddyId?: number;
   buddyName?: string;
   learningGoal?: LearningGoal;
-  lastUpdatedEnergy: Date;
+  lastUpdatedEnergy?: Date;
   lastBoughtEnergy?: Date;
-  createdAt: Date;
-  updatedAt: Date;
 };
 
 export type LearningGoal = {
@@ -24,9 +22,12 @@ export type LearningGoal = {
   w?: number[];
 };
 
-type KidLearningDataCreationAttributes = Optional<KidLearningDataAttributes, "kidId" | "createdAt" | "updatedAt">;
+type KidLearningDataCreationAttributes = Optional<
+  KidLearningDataAttributes,
+  "kidId" | "gem" | "coin" | "energy" | "countBuyEnergy"
+>;
 
-@Table({ tableName: "kid_learning_data", schema: "content", version: true })
+@Table({ tableName: "kid_learning_data", schema: "content", version: true, timestamps: false })
 export class KidLearningData extends Model<KidLearningDataAttributes, KidLearningDataCreationAttributes> {
   @Column({ primaryKey: true })
   kidId: number; //kidId
@@ -40,7 +41,7 @@ export class KidLearningData extends Model<KidLearningDataAttributes, KidLearnin
   @Column({ allowNull: false })
   energy: number;
 
-  @Column
+  @Column({ allowNull: false })
   countBuyEnergy: number;
 
   @Column
@@ -59,16 +60,10 @@ export class KidLearningData extends Model<KidLearningDataAttributes, KidLearnin
   learningGoal?: LearningGoal;
 
   @Column("timestamp")
-  lastUpdatedEnergy: Date;
+  lastUpdatedEnergy?: Date;
 
   @Column("timestamp")
   lastBoughtEnergy?: Date;
-
-  @CreatedAt
-  createdAt: Date;
-
-  @UpdatedAt
-  updatedAt: Date;
 
   @HasMany(() => KidLessonProgress, { onDelete: "CASCADE", onUpdate: "CASCADE" })
   kidLessonProgresses: KidLessonProgress[];
