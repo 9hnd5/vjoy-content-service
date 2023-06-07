@@ -11,6 +11,7 @@ import { GameRule } from "entities/game-rule.entity";
 import { Sequelize } from "sequelize-typescript";
 import { I18nTranslations } from "i18n/i18n.generated";
 import { CreateKidLearningDataDto } from "./dto/create-kid-learning-data.dto";
+import { UpdateKidLearningDataDto } from "./dto/update-kid-learning-data.dto";
 dayjs.extend(isToday);
 
 @Injectable()
@@ -26,6 +27,14 @@ export class KidLearningDataService extends BaseService<I18nTranslations> {
 
   create = async (data: CreateKidLearningDataDto) => {
     return this.kidLearningDataModel.create({ ...data });
+  };
+
+  update = async (kidId: number, data: UpdateKidLearningDataDto) => {
+    const kidAsset = await this.kidLearningDataModel.findByPk(kidId);
+    if (!kidAsset) throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: kidId } }));
+
+    kidAsset.update({ ...data });
+    return { ...kidAsset.dataValues };
   };
 
   buyEnergy = async (id: number) => {
