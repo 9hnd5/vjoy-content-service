@@ -4,17 +4,24 @@ import { KidLearningDataService } from "./kid-learning-data.service";
 import { CreateUpdateKidLessonProgressDto } from "./dto/create-update-kid-lesson-progress.dto";
 import { UpdateEnergyDto } from "./dto/update-energy.dto";
 import { CreateKidLearningDataDto } from "./dto/create-kid-learning-data.dto";
+import { UpdateKidLearningDataDto } from "./dto/update-kid-learning-data.dto";
 
 @Controller("kid-learning-data")
 export class KidLearningDataController {
   constructor(private kidLearningDataService: KidLearningDataService) {}
 
-  @Authorize({ resource: "kid-lesson-data", action: "create" })
+  @Authorize({ resource: "kid-learning-data", action: "create" })
   @Post()
   createKidLearningData(@Body() data: CreateKidLearningDataDto) {
     return this.kidLearningDataService.create(data);
   }
-  
+
+  @Authorize({ resource: "kid-learning-data", action: "update" })
+  @Patch(":kidId")
+  updateKidLearningData(@Param("kidId") kidId: number, @Body() data: UpdateKidLearningDataDto) {
+    return this.kidLearningDataService.update(kidId, data);
+  }
+
   @Authorize({ resource: "kid-learning-data", action: "update" })
   @Post("/:id/energy")
   buyEnergy(@Param("id") id: number) {

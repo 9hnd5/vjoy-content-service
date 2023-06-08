@@ -3,10 +3,10 @@ import { BUDDY_STATUS } from "entities/buddy.entity";
 
 export class CreateBuddyDto {
   @IsNotEmpty()
-  name: string;
+  id: string;
 
   @IsNotEmpty()
-  code: string;
+  name: string;
 
   @IsOptional()
   @IsIn(Object.values(BUDDY_STATUS))

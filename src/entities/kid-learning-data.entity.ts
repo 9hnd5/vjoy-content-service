@@ -10,8 +10,7 @@ type KidLearningDataAttributes = {
   countBuyEnergy: number;
   currentLevelId?: number;
   currentUnitId?: number;
-  buddyId?: number;
-  buddyName?: string;
+  buddyId?: string;
   learningGoal?: LearningGoal;
   lastUpdatedEnergy?: Date;
   lastBoughtEnergy?: Date;
@@ -50,11 +49,8 @@ export class KidLearningData extends Model<KidLearningDataAttributes, KidLearnin
   @Column
   currentUnitId?: number;
 
-  @Column
-  buddyId?: number;
-
   @Column({ type: DataType.STRING(255) })
-  buddyName?: string;
+  buddyId?: string;
 
   @Column(DataType.JSONB)
   learningGoal?: LearningGoal;

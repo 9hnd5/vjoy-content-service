@@ -70,11 +70,17 @@ describe("Buddies E2E Test", () => {
 
   describe("Create buddy (POST)api/buddies", () => {
     let createDto: CreateBuddyDto;
+    let createContentDto: CreateBuddyDto;
     const name = `test-buddy-${generateNumber(10)}`;
+    const nameContent = `test-buddy-${generateNumber(10)}`;
     beforeAll(() => {
       createDto = {
+        id: name,
         name,
-        code: name,
+      };
+      createContentDto = {
+        id: nameContent,
+        name: nameContent,
       };
     });
 
@@ -110,8 +116,8 @@ describe("Buddies E2E Test", () => {
         .set("Authorization", `Bearer ${adminToken}`)
         .expect((res) => {
           const result = res.body.data;
+          expect(result.id).toBe(createDto.id);
           expect(result.name).toBe(createDto.name);
-          expect(result.code).toBe(createDto.code);
           expect(result.status).toBe(BUDDY_STATUS.NEW);
           buddy["createdByAdmin"] = result;
         })
@@ -121,12 +127,12 @@ describe("Buddies E2E Test", () => {
     it("Should succeed due to user is content editor", () => {
       return agent
         .post(`${API_CONTENT_PREFIX}/buddies`)
-        .send(createDto)
+        .send(createContentDto)
         .set("Authorization", `Bearer ${contentToken}`)
         .expect((res) => {
           const result = res.body.data;
-          expect(result.name).toBe(createDto.name);
-          expect(result.code).toBe(createDto.code);
+          expect(result.id).toBe(createContentDto.id);
+          expect(result.name).toBe(createContentDto.name);
           expect(result.status).toBe(BUDDY_STATUS.NEW);
           buddy["createdByContent"] = result;
         })
@@ -177,7 +183,7 @@ describe("Buddies E2E Test", () => {
         .patch(`${API_CONTENT_PREFIX}/buddies/undefined`)
         .send(updateDto)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.BAD_REQUEST);
+        .expect(HttpStatus.NOT_FOUND);
     });
 
     it("Should fail due to user is not admin or content editor", () => {
@@ -224,7 +230,7 @@ describe("Buddies E2E Test", () => {
       return agent
         .get(`${API_CONTENT_PREFIX}/buddies/undefined`)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.BAD_REQUEST);
+        .expect(HttpStatus.NOT_FOUND);
     });
 
     it("Should succeed due to user having sufficient privileges", () => {
@@ -251,7 +257,7 @@ describe("Buddies E2E Test", () => {
       return agent
         .delete(`${API_CONTENT_PREFIX}/buddies/undefined`)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.BAD_REQUEST);
+        .expect(HttpStatus.NOT_FOUND);
     });
 
     it("Should fail due to user is not admin or content editor", () => {

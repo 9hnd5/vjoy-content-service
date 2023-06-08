@@ -23,19 +23,19 @@ export class BuddyController {
 
   @Authorize({ action: "read", resource: "buddies" })
   @Get(":id")
-  findOne(@Param("id") id: number) {
+  findOne(@Param("id") id: string) {
     return this.buddyService.findOne(id);
   }
 
   @Authorize({ action: "update", resource: "buddies" })
   @Patch(":id")
-  update(@Param("id") id: number, @Body() updateBuddyDto: UpdateBuddyDto) {
+  update(@Param("id") id: string, @Body() updateBuddyDto: UpdateBuddyDto) {
     return this.buddyService.update(id, updateBuddyDto);
   }
 
   @Authorize({ action: "delete", resource: "buddies" })
   @Delete(":id")
-  remove(@Param("id") id: number, @Query("hardDelete") hardDelete: boolean) {
+  remove(@Param("id") id: string, @Query("hardDelete") hardDelete: boolean) {
     return this.buddyService.remove(id, hardDelete);
   }
 }
