@@ -28,14 +28,14 @@ export class BuddyService extends BaseService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const buddy = await this.buddyModel.findByPk(id);
     if (!buddy) throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: id } }));
 
     return buddy;
   }
 
-  async update(id: number, updateBuddyDto: UpdateBuddyDto) {
+  async update(id: string, updateBuddyDto: UpdateBuddyDto) {
     const buddy = await this.buddyModel.findByPk(id);
     if (!buddy) throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: id } }));
 
@@ -43,7 +43,7 @@ export class BuddyService extends BaseService {
     return buddy.save();
   }
 
-  async remove(id: number, hardDelete = false) {
+  async remove(id: string, hardDelete = false) {
     const buddy = await this.buddyModel.findByPk(id);
     if (!buddy) throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: id } }));
     if (hardDelete) {

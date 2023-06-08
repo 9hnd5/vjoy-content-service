@@ -8,5 +8,5 @@ export class CreateKidLearningDataDto {
   currentLevelId: number;
 
   @IsNotEmpty()
-  buddyId: number;
+  buddyId: string;
 }

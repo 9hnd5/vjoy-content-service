@@ -9,8 +9,7 @@ export const BUDDY_STATUS = {
 };
 
 export type BuddyAttributes = {
-  id: number;
-  code: string;
+  id: string;
   name: string;
   status: number;
   asset?: any;
@@ -20,14 +19,12 @@ export type BuddyAttributes = {
   updatedAt: Date;
 };
 
-type BuddyCreationAttributes = Optional<BuddyAttributes, "id" | "status" | "createdAt" | "updatedAt">;
+type BuddyCreationAttributes = Optional<BuddyAttributes, "status" | "createdAt" | "updatedAt">;
 
 @Table({ tableName: "buddies", schema: "content" })
 export class Buddy extends Model<BuddyAttributes, BuddyCreationAttributes> {
-  id: number;
-
-  @Column({ type: DataType.STRING(255), allowNull: false })
-  code: string;
+  @Column({ primaryKey: true })
+  id: string;
 
   @Column({ type: DataType.STRING(255), allowNull: false })
   name: string;
