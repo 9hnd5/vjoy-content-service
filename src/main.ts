@@ -1,4 +1,3 @@
-import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
@@ -18,7 +17,7 @@ async function bootstrap() {
     .addTag("vjoy-content")
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("api/v1/dev/content/api-docs", app, document);
+  SwaggerModule.setup("api/v1/content/api-docs", app, document);
   await app.listen(envService.get("PORT")!);
 }
 bootstrap();
