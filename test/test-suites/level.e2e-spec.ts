@@ -68,49 +68,25 @@ describe("Level E2E test", () => {
 
     it("should return fail due to the invalid query passed", () => {
       return agent
-        .get(`${API_CONTENT_PREFIX}/level-suggestion?filter[dob]=abc`)
+        .get(`${API_CONTENT_PREFIX}/level-suggestion?fromAge=a&toAge=b`)
         .expect((res) => expectError(res.body))
         .expect(HttpStatus.BAD_REQUEST);
     });
 
-    it("should return English Pre A1 due to dob in 2015", () => {
-      return agent.get(`${API_CONTENT_PREFIX}/level-suggestion?filter[dob]=02-09-2015`).expect((res) => {
+    it("should return English Pre A1 due to age between 6 - 8", () => {
+      return agent.get(`${API_CONTENT_PREFIX}/level-suggestion?fromAge=6&toAge=8`).expect((res) => {
         expect(res.body.data).toEqual({ id: "eng-preA1", name: "English Pre A1" });
       });
     });
 
-    it("should return English Pre A1 due to dob onwards 2015(bellow 8 years old)", () => {
-      return agent.get(`${API_CONTENT_PREFIX}/level-suggestion?filter[dob]=02-09-2016`).expect((res) => {
-        expect(res.body.data).toEqual({ id: "eng-preA1", name: "English Pre A1" });
-      });
-    });
-
-    it("should return English A1 due to dob in 2012", () => {
-      return agent.get(`${API_CONTENT_PREFIX}/level-suggestion?filter[dob]=02-09-2012`).expect((res) => {
+    it("should return English A1 due to age between 9 - 11", () => {
+      return agent.get(`${API_CONTENT_PREFIX}/level-suggestion?fromAge=9&toAge=11`).expect((res) => {
         expect(res.body.data).toEqual({ id: "eng-A1", name: "English A1" });
       });
     });
 
-    it("should return English A1 due to dob from 2012-2014", () => {
-      return agent.get(`${API_CONTENT_PREFIX}/level-suggestion?filter[dob]=02-09-2013`).expect((res) => {
-        expect(res.body.data).toEqual({ id: "eng-A1", name: "English A1" });
-      });
-    });
-
-    it("should return English A1 due to dob in 2014", () => {
-      return agent.get(`${API_CONTENT_PREFIX}/level-suggestion?filter[dob]=02-09-2014`).expect((res) => {
-        expect(res.body.data).toEqual({ id: "eng-A1", name: "English A1" });
-      });
-    });
-
-    it("should return English A2 due to dob in 2011", () => {
-      return agent.get(`${API_CONTENT_PREFIX}/level-suggestion?filter[dob]=02-09-2011`).expect((res) => {
-        expect(res.body.data).toEqual({ id: "eng-A2", name: "English A2" });
-      });
-    });
-
-    it("should return English A2 due to dob before 2011", () => {
-      return agent.get(`${API_CONTENT_PREFIX}/level-suggestion?filter[dob]=02-09-2010`).expect((res) => {
+    it("should return English A1 due to age greater 11", () => {
+      return agent.get(`${API_CONTENT_PREFIX}/level-suggestion?fromAge=11`).expect((res) => {
         expect(res.body.data).toEqual({ id: "eng-A2", name: "English A2" });
       });
     });
