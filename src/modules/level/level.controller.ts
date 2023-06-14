@@ -11,12 +11,12 @@ export class LevelController {
   @Authorize({ resource: "levels", action: "list" })
   @Get("levels")
   findAll(@Query() query: FindLevelsQueryDto) {
-    return this.levelService.findAll(query);
+    return this.levelService.find(query);
   }
 
   @Authorize({ resource: "levels", action: "read" })
   @Get("level-suggestion")
   findSuggestion(@Query() query: FindLevelSuggestionDto) {
-    return this.levelService.findSuggestion(query.filter.dob);
+    return this.levelService.findSuggestion(query);
   }
 }

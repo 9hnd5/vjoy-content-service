@@ -3,18 +3,14 @@ import { InjectModel } from "@nestjs/sequelize";
 import { LEVEL_ID, Level } from "entities/level.entity";
 import { isNil } from "lodash";
 import { Op } from "sequelize";
+import { FindLevelSuggestionDto } from "./dto/find-level-suggestion.dto";
 import { FindLevelsQueryDto } from "./dto/find-levels.dto";
-import dayjs from "dayjs";
-import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
-import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-dayjs.extend(isSameOrAfter);
-dayjs.extend(isSameOrBefore);
 
 @Injectable()
 export class LevelService {
   constructor(@InjectModel(Level) private levelModel: typeof Level) {}
 
-  findAll(query: FindLevelsQueryDto) {
+  find(query: FindLevelsQueryDto) {
     const { name, ids } = query.filter || {};
     const { sort: order, limit, offset } = query;
     return this.levelModel.findAndCountAll({
@@ -28,16 +24,14 @@ export class LevelService {
     });
   }
 
-  findSuggestion(dob: Date) {
+  findSuggestion(query: FindLevelSuggestionDto) {
+    const { fromAge, toAge } = query;
     const attributes = ["id", "name"];
 
-    if (dayjs(dob).isSameOrAfter("2015", "year"))
-      return this.levelModel.findOne({ where: { id: LEVEL_ID.ENG_PREA1 }, attributes });
+    if (fromAge === 6 && toAge === 8) return this.levelModel.findOne({ where: { id: LEVEL_ID.ENG_PREA1 }, attributes });
 
-    if (dayjs(dob).isSameOrAfter("2012", "year") && dayjs(dob).isSameOrBefore("2014", "year"))
-      return this.levelModel.findOne({ where: { id: LEVEL_ID.ENG_A1 }, attributes });
+    if (fromAge === 9 && toAge === 11) return this.levelModel.findOne({ where: { id: LEVEL_ID.ENG_A1 }, attributes });
 
-    if (dayjs(dob).isSameOrBefore("2011", "year"))
-      return this.levelModel.findOne({ where: { id: LEVEL_ID.ENG_A2 }, attributes });
+    return this.levelModel.findOne({ where: { id: LEVEL_ID.ENG_A2 }, attributes });
   }
 }

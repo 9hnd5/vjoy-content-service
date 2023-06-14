@@ -1,14 +1,10 @@
-import { Type } from "class-transformer";
-import { IsDate, IsNotEmpty, ValidateNested } from "class-validator";
-
-class Filter {
-  @IsDate()
-  @Type(() => Date)
-  dob: Date;
-}
+import { IsNotEmpty, IsIn, ValidateIf, IsOptional } from "class-validator";
 
 export class FindLevelSuggestionDto {
-  @IsNotEmpty()
-  @ValidateNested()
-  filter: Filter;
+  @IsIn([6, 9, 11])
+  fromAge: number;
+
+  @IsOptional()
+  @IsIn([8, 11])
+  toAge?: number;
 }
