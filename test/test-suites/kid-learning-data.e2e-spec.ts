@@ -272,22 +272,22 @@ describe("Kid Learning Data E2E", () => {
           .send({})
           .expect((res) => {
             expectError(res.body);
-            const error = res.body.error;
+            const error = res.body.errors;
             expect(error).toEqual([
               {
-                code: "lessonId",
+                code: "isInt",
                 message: expect.any(String),
               },
               {
-                code: "star",
+                code: "isIn",
                 message: expect.any(String),
               },
               {
-                code: "type",
+                code: "matches",
                 message: expect.any(String),
               },
               {
-                code: "isWin",
+                code: "isBoolean",
                 message: expect.any(String),
               },
             ]);

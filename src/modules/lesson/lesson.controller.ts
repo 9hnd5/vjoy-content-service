@@ -4,8 +4,10 @@ import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { FindLessonsQueryDto } from "./dto/find-lessons-query.dto";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import { LessonService } from "./lesson.service";
+import { ApiBearerAuth } from "@nestjs/swagger";
 
 @Controller()
+@ApiBearerAuth()
 export class LessonController {
   constructor(private readonly lessonService: LessonService) {}
 

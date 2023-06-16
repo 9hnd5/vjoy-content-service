@@ -1,4 +1,4 @@
-import { API_TOKEN, createUser, deleteUser, generateNumber, ROLE_ID, signin, User } from "@common";
+import { API_TOKEN, createUser, deleteUser, expectError, generateNumber, ROLE_ID, signin, User } from "@common";
 import { HttpStatus, INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { AppModule } from "app.module";
@@ -94,12 +94,7 @@ describe("Units E2E Test", () => {
         .post(`${API_CONTENT_PREFIX}/units`)
         .send({ ...createDto, status: generateNumber(2) })
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect((res) => {
-          const { error } = res.body;
-          expect(error).not.toBeNull();
-          expect(error[0].code).toBe("status");
-          expect(error[0].message).not.toBeNull();
-        });
+        .expect((res) => expectError(res.body));
     });
 
     it("Should succeed due to user is admin", () => {

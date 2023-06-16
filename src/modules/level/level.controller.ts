@@ -3,8 +3,10 @@ import { Get, Query } from "@nestjs/common";
 import { FindLevelsQueryDto } from "./dto/find-levels.dto";
 import { LevelService } from "./level.service";
 import { FindLevelSuggestionDto } from "./dto/find-level-suggestion.dto";
+import { ApiBearerAuth } from "@nestjs/swagger";
 
 @Controller()
+@ApiBearerAuth()
 export class LevelController {
   constructor(private levelService: LevelService) {}
 

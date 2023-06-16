@@ -3,6 +3,7 @@ ARG env
 WORKDIR /app
 COPY . .
 RUN yarn install --frozen-lockfile
+
 RUN if [ "$env" = "dev" ]; then \
     yarn test-e2e:${env} && yarn test; \
 fi

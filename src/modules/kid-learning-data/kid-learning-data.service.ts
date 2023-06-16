@@ -1,17 +1,18 @@
-import { BaseService } from "@common";
+import { BaseService, ERROR_CODE, KidDetail, ROLE_ID, User } from "@common";
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
-import { KidLearningData } from "entities/kid-learning-data.entity";
 import dayjs from "dayjs";
 import isToday from "dayjs/plugin/isToday";
-import { COST_COIN, ENERGY_BUY_WITH_COIN, ENERGY_PER_MINUTE, MAX_ENERGY } from "./kid-learning-data.constants";
-import { KID_LESSON_PROGRESS_STAR, KidLessonProgress } from "entities/kid-lesson-progress.entity";
-import { CreateUpdateKidLessonProgressDto } from "./dto/create-update-kid-lesson-progress.dto";
 import { GameRule } from "entities/game-rule.entity";
-import { Sequelize } from "sequelize-typescript";
+import { KidLearningData } from "entities/kid-learning-data.entity";
+import { KID_LESSON_PROGRESS_STAR, KidLessonProgress } from "entities/kid-lesson-progress.entity";
+import { Level } from "entities/level.entity";
 import { I18nTranslations } from "i18n/i18n.generated";
+import { Sequelize } from "sequelize-typescript";
 import { CreateKidLearningDataDto } from "./dto/create-kid-learning-data.dto";
+import { CreateUpdateKidLessonProgressDto } from "./dto/create-update-kid-lesson-progress.dto";
 import { UpdateKidLearningDataDto } from "./dto/update-kid-learning-data.dto";
+import { COST_COIN, ENERGY_BUY_WITH_COIN, ENERGY_PER_MINUTE, MAX_ENERGY } from "./kid-learning-data.constants";
 dayjs.extend(isToday);
 
 @Injectable()
@@ -20,13 +21,51 @@ export class KidLearningDataService extends BaseService<I18nTranslations> {
     @InjectModel(KidLearningData) private kidLearningDataModel: typeof KidLearningData,
     @InjectModel(KidLessonProgress) private kidLessonProgressModel: typeof KidLessonProgress,
     @InjectModel(GameRule) private gameRuleModel: typeof GameRule,
+    @InjectModel(KidDetail) private kidDetailModel: typeof KidDetail,
+    @InjectModel(User) private userModel: typeof User,
+    @InjectModel(Level) private levelModel: typeof Level,
     private sequelize: Sequelize
   ) {
     super();
   }
 
   create = async (data: CreateKidLearningDataDto) => {
-    return this.kidLearningDataModel.create({ ...data });
+    try {
+      return this.sequelize.transaction(async (t) => {
+        const { parentId, character, buddyId, currentLevelId, kidName } = data;
+
+        const parent = await this.userModel.findByPk(parentId);
+        if (!parent)
+          throw new NotFoundException({
+            code: ERROR_CODE.LEVEL_NOT_FOUND,
+            message: this.i18n.t("message.NOT_FOUND", { args: { data: "Parent" } }),
+          });
+
+        const currentLevel = await this.levelModel.findByPk(currentLevelId);
+        if (!currentLevel)
+          throw new NotFoundException({
+            code: ERROR_CODE.USER_NOT_FOUND,
+            message: this.i18n.t("message.NOT_FOUND", { args: { data: "Parent" } }),
+          });
+
+        const kid = await this.userModel.create(
+          { roleId: ROLE_ID.KID_FREE, parentId, lastname: kidName },
+          { transaction: t }
+        );
+
+        const existKidDetail = await this.kidDetailModel.findByPk(kid.id);
+
+        if (existKidDetail)
+          throw new BadRequestException(this.i18n.t("message.IS_EXISTED", { args: { data: "Kid Detail" } }));
+
+        const { kidId } = await this.kidDetailModel.create({ character, kidId: kid.id }, { transaction: t });
+
+        return this.kidLearningDataModel.create({ buddyId, currentLevelId, kidId }, { transaction: t });
+      });
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   };
 
   update = async (kidId: number, data: UpdateKidLearningDataDto) => {

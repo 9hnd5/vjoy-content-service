@@ -1,4 +1,4 @@
-import { API_TOKEN, createUser, deleteUser, generateNumber, ROLE_ID, signin, User } from "@common";
+import { API_TOKEN, createUser, deleteUser, expectError, generateNumber, ROLE_ID, signin, User } from "@common";
 import { HttpStatus, INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { AppModule } from "app.module";
@@ -122,12 +122,7 @@ describe("Lessons E2E Test", () => {
         .post(`${API_CONTENT_PREFIX}/lessons`)
         .send({ ...createDto, asset: invalidAsset })
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect((res) => {
-          const { error } = res.body;
-          expect(error).not.toBeNull();
-          expect(error[0].code).toContain("asset");
-          expect(error[0].message).not.toBeNull();
-        });
+        .expect((res) => expectError(res.body));
     });
 
     it("Should fail due to invalid asset", () => {
@@ -142,8 +137,8 @@ describe("Lessons E2E Test", () => {
         .send({ ...createDto, asset: invalidAsset })
         .set("Authorization", `Bearer ${adminToken}`)
         .expect((res) => {
-          const { error } = res.body;
-          expect(error).not.toBeNull();
+          const { errors } = res.body;
+          expect(errors).not.toBeNull();
           expect.arrayContaining(expect.objectContaining({ code: "asset.bg", message: expect.any(String) }));
           expect.arrayContaining(expect.objectContaining({ code: "asset.cannon", message: expect.any(String) }));
           expect.arrayContaining(expect.objectContaining({ code: "asset.spheres", message: expect.any(String) }));
@@ -233,10 +228,10 @@ describe("Lessons E2E Test", () => {
         .send({ ...createDto, asset: invalidAsset })
         .set("Authorization", `Bearer ${adminToken}`)
         .expect((res) => {
-          const { error } = res.body;
-          expect(error).not.toBeNull();
-          expect(error[0].code).toContain("asset");
-          expect(error[0].message).not.toBeNull();
+          const { errors } = res.body;
+          expect(errors).not.toBeNull();
+          expect(errors[0].code).toContain("isUrl");
+          expect(errors[0].message).not.toBeNull();
         });
     });
 
@@ -254,12 +249,7 @@ describe("Lessons E2E Test", () => {
         .post(`${API_CONTENT_PREFIX}/lessons`)
         .send({ ...createDto, asset: invalidAsset })
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect((res) => {
-          const { error } = res.body;
-          expect(error).not.toBeNull();
-          expect(error[0].code).toContain("asset");
-          expect(error[0].message).not.toBeNull();
-        });
+        .expect((res) => expectError(res.body));
     });
 
     it("Should fail due to invalid image field", () => {
@@ -276,12 +266,7 @@ describe("Lessons E2E Test", () => {
         .post(`${API_CONTENT_PREFIX}/lessons`)
         .send({ ...createDto, asset: invalidAsset })
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect((res) => {
-          const { error } = res.body;
-          expect(error).not.toBeNull();
-          expect(error[0].code).toContain("asset");
-          expect(error[0].message).not.toBeNull();
-        });
+        .expect((res) => expectError(res.body));
     });
 
     it("Should succeed due to user is admin", () => {

@@ -31,16 +31,16 @@ export class KidLearningData extends Model<KidLearningDataAttributes, KidLearnin
   @Column({ primaryKey: true })
   kidId: number; //kidId
 
-  @Column({ allowNull: false })
+  @Column({ allowNull: false, defaultValue: 0 })
   gem: number;
 
-  @Column({ allowNull: false })
+  @Column({ allowNull: false, defaultValue: 0 })
   coin: number;
 
-  @Column({ allowNull: false })
+  @Column({ allowNull: false, defaultValue: 0 })
   energy: number;
 
-  @Column({ allowNull: false })
+  @Column({ allowNull: false, defaultValue: 0 })
   countBuyEnergy: number;
 
   @Column
