@@ -102,10 +102,10 @@ describe("Buddies E2E Test", () => {
         .send({ ...createDto, status: generateNumber(2) })
         .set("Authorization", `Bearer ${adminToken}`)
         .expect((res) => {
-          const { error } = res.body;
-          expect(error).not.toBeNull();
-          expect(error[0].code).toBe("status");
-          expect(error[0].message).not.toBeNull();
+          const { errors } = res.body;
+          expect(errors).not.toBeNull();
+          expect(errors[0].code).toBe("isIn");
+          expect(errors[0].message).not.toBeNull();
         });
     });
 

@@ -11,6 +11,7 @@ async function bootstrap() {
   app.setGlobalPrefix("api");
   const config = new DocumentBuilder()
     .addBearerAuth()
+    .addGlobalParameters({ in: "header", name: "api-token", required: true })
     .setTitle("Vjoy-Content")
     .setDescription("The documentation vjoy-content")
     .setVersion("1.0")

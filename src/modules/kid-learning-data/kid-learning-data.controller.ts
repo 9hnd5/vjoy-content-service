@@ -5,8 +5,10 @@ import { CreateUpdateKidLessonProgressDto } from "./dto/create-update-kid-lesson
 import { UpdateEnergyDto } from "./dto/update-energy.dto";
 import { CreateKidLearningDataDto } from "./dto/create-kid-learning-data.dto";
 import { UpdateKidLearningDataDto } from "./dto/update-kid-learning-data.dto";
+import { ApiBearerAuth } from "@nestjs/swagger";
 
 @Controller("kid-learning-data")
+@ApiBearerAuth()
 export class KidLearningDataController {
   constructor(private kidLearningDataService: KidLearningDataService) {}
 

@@ -4,8 +4,10 @@ import { BuddyService } from "./buddy.service";
 import { CreateBuddyDto } from "./dto/create-buddy.dto";
 import { FindBuddiesQueryDto } from "./dto/find-buddies-query.dto";
 import { UpdateBuddyDto } from "./dto/update-buddy.dto";
+import { ApiBearerAuth } from "@nestjs/swagger";
 
 @Controller("buddies")
+@ApiBearerAuth()
 export class BuddyController {
   constructor(private readonly buddyService: BuddyService) {}
 

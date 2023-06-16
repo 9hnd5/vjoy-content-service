@@ -4,8 +4,10 @@ import { CreateUnitDto } from "./dto/create-unit.dto";
 import { FindUnitsQueryDto } from "./dto/find-units-query.dto";
 import { UpdateUnitDto } from "./dto/update-unit.dto";
 import { UnitService } from "./unit.service";
+import { ApiBearerAuth } from "@nestjs/swagger";
 
 @Controller("units")
+@ApiBearerAuth()
 export class UnitController {
   constructor(private readonly unitsService: UnitService) {}
 
