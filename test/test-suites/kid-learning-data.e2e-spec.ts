@@ -223,7 +223,7 @@ describe("Kid Learning Data E2E", () => {
       let learningData: KidLearningData["dataValues"];
       let gameRule: GameRule["dataValues"];
       const data = {
-        levelId: -generateNumber(4),
+        levelId: "eng-preA1",
         unitId: -generateNumber(4),
         lessonId: 1,
         star: KID_LESSON_PROGRESS_STAR.EASY,
