@@ -8,7 +8,7 @@ type KidLearningDataAttributes = {
   coin: number;
   energy: number;
   countBuyEnergy: number;
-  currentLevelId?: number;
+  currentLevelId?: string;
   currentUnitId?: number;
   buddyId?: string;
   learningGoal?: LearningGoal;
@@ -44,7 +44,7 @@ export class KidLearningData extends Model<KidLearningDataAttributes, KidLearnin
   countBuyEnergy: number;
 
   @Column
-  currentLevelId?: number;
+  currentLevelId?: string;
 
   @Column
   currentUnitId?: number;

@@ -41,7 +41,7 @@ export class KidLearningDataService extends BaseService<I18nTranslations> {
             message: this.i18n.t("message.NOT_FOUND", { args: { data: "Parent" } }),
           });
 
-        const currentLevel = await this.levelModel.findByPk(currentLevelId);
+        const currentLevel = await this.levelModel.findByPk(currentLevelId, { transaction: t });
         if (!currentLevel)
           throw new NotFoundException({
             code: ERROR_CODE.USER_NOT_FOUND,
@@ -53,7 +53,7 @@ export class KidLearningDataService extends BaseService<I18nTranslations> {
           { transaction: t }
         );
 
-        const existKidDetail = await this.kidDetailModel.findByPk(kid.id);
+        const existKidDetail = await this.kidDetailModel.findByPk(kid.id, { transaction: t });
 
         if (existKidDetail)
           throw new BadRequestException(this.i18n.t("message.IS_EXISTED", { args: { data: "Kid Detail" } }));

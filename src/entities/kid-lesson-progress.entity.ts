@@ -5,7 +5,7 @@ import { KidLearningData } from "./kid-learning-data.entity";
 type KidLessonProgressAttributes = {
   id: number;
   learningDataId: number;
-  levelId?: number;
+  levelId?: string;
   unitId?: number;
   lessonId: number;
   isGemUnlocked: boolean;
@@ -34,7 +34,7 @@ export class KidLessonProgress extends Model<KidLessonProgressAttributes, KidLes
   kidAsset: KidLearningData;
 
   @Column
-  levelId: number;
+  levelId: string;
 
   @Column
   unitId: number;

@@ -2,8 +2,8 @@ import { IsBoolean, IsIn, IsInt, IsOptional, Matches } from "class-validator";
 
 export class CreateUpdateKidLessonProgressDto {
   @IsOptional()
-  @IsInt()
-  levelId?: number;
+  @IsIn(["eng-A1", "eng-A2", "eng-preA1"])
+  levelId?: string;
 
   @IsOptional()
   @IsInt()
