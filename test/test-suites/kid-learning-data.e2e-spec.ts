@@ -1,4 +1,4 @@
-import { API_TOKEN, expectError, generateNumber, signin } from "@common";
+import { API_TOKEN, expectError, expectErrors, generateNumber, signin } from "@common";
 import { HttpStatus, INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { AppModule } from "app.module";
@@ -44,6 +44,51 @@ describe("Kid Learning Data E2E", () => {
 
   afterAll(async () => {
     app && (await app.close());
+  });
+
+  describe("Create kid-learning-data (Post)api/kid-learning-data", () => {
+    let data: any;
+    beforeAll(() => {
+      data = {
+        currentLevelId: "eng-preA1",
+        buddyId: "1",
+        parentId: 1,
+        character: "test-character",
+        kidName: "test-kid-name",
+      };
+    });
+
+    it("should failed due to invalid data", () => {
+      return agent
+        .post(`${API_CONTENT_PREFIX}/kid-learning-data`)
+        .send({})
+        .expect((res) => expectErrors(res.body));
+    });
+
+    it("should failed due to invalid currentLevelId", () => {
+      return agent
+        .post(`${API_CONTENT_PREFIX}/kid-learning-data`)
+        .send({ ...data, currentLevelId: "test" })
+        .expect((res) => expectErrors(res.body));
+    });
+
+    it("should failed due to invalid parentId", () => {
+      return agent
+        .post(`${API_CONTENT_PREFIX}/kid-learning-data`)
+        .send({ ...data, parentId: "-1" })
+        .expect((res) => expectErrors(res.body));
+    });
+
+    it("should succeed create kid-learning-datat", () => {
+      return agent
+        .post(`${API_CONTENT_PREFIX}/kid-learning-data`)
+        .send(data)
+        .expect((res) => {
+          const result = res.body.data;
+          expect(result.currentLevelId).toBe(data.currentLevelId);
+          expect(result.buddyId).toBe(data.buddyId);
+        });
+    });
   });
 
   describe("Buy Energy (Post)api/kid-learning-data/:kidId/energy", () => {
