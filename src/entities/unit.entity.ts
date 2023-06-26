@@ -20,7 +20,7 @@ export const UNIT_STATUS = {
 };
 
 export type UnitAttributes = {
-  id: number;
+  id: string;
   name: string;
   levelId: string;
   status: number;
@@ -30,11 +30,11 @@ export type UnitAttributes = {
   updatedAt: Date;
 };
 
-type UnitCreationAttributes = Optional<UnitAttributes, "id" | "status" | "createdAt" | "updatedAt">;
+type UnitCreationAttributes = Optional<UnitAttributes, "status" | "createdAt" | "updatedAt">;
 
 @Table({ tableName: "units", schema: "content" })
 export class Unit extends Model<UnitAttributes, UnitCreationAttributes> {
-  id: number;
+  id: string;
 
   @Column(DataType.STRING(255))
   name: string;

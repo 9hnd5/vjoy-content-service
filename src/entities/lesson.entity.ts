@@ -36,10 +36,10 @@ export const GAME_TYPE = {
 };
 
 export type LessonAttributes = {
-  id: number;
+  id: string;
   name?: string;
   status: number;
-  unitId: number;
+  unitId: string;
   difficulty: number;
   rules?: any;
   asset: any;
@@ -53,7 +53,7 @@ type LessonCreationAttributes = Optional<LessonAttributes, "id" | "status" | "cr
 
 @Table({ tableName: "lessons", schema: "content" })
 export class Lesson extends Model<LessonAttributes, LessonCreationAttributes> {
-  id: number;
+  id: string;
 
   @Column(DataType.STRING(255))
   name?: string;
@@ -64,7 +64,7 @@ export class Lesson extends Model<LessonAttributes, LessonCreationAttributes> {
 
   @ForeignKey(() => Unit)
   @Column({ type: DataType.INTEGER, allowNull: false })
-  unitId: number;
+  unitId: string;
 
   @BelongsTo(() => Unit)
   unit: Unit;

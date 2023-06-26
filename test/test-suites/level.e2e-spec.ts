@@ -75,19 +75,19 @@ describe("Level E2E test", () => {
 
     it("should return English Pre A1 due to age between 6 - 8", () => {
       return agent.get(`${API_CONTENT_PREFIX}/level-suggestion?fromAge=6&toAge=8`).expect((res) => {
-        expect(res.body.data).toEqual({ id: "eng-preA1", name: "English Pre A1" });
+        expect(res.body.data).toEqual({ id: "PreA1", name: "English Pre A1" });
       });
     });
 
     it("should return English A1 due to age between 9 - 11", () => {
       return agent.get(`${API_CONTENT_PREFIX}/level-suggestion?fromAge=9&toAge=11`).expect((res) => {
-        expect(res.body.data).toEqual({ id: "eng-A1", name: "English A1" });
+        expect(res.body.data).toEqual({ id: "A1", name: "English A1" });
       });
     });
 
     it("should return English A1 due to age greater 11", () => {
       return agent.get(`${API_CONTENT_PREFIX}/level-suggestion?fromAge=11`).expect((res) => {
-        expect(res.body.data).toEqual({ id: "eng-A2", name: "English A2" });
+        expect(res.body.data).toEqual({ id: "A2", name: "English A2" });
       });
     });
   });

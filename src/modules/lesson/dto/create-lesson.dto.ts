@@ -89,6 +89,9 @@ class Curriculum {
 
 export class CreateLessonDto {
   @Length(1, 255)
+  id: string;
+
+  @Length(1, 255)
   name: string;
 
   @IsOptional()
@@ -96,8 +99,7 @@ export class CreateLessonDto {
   status?: number = LESSON_STATUS.SAVED;
 
   @IsNotEmpty()
-  @IsInt()
-  unitId: number;
+  unitId: string;
 
   @IsOptional()
   @IsJSON()

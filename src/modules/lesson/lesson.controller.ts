@@ -25,31 +25,31 @@ export class LessonController {
 
   @Authorize({ action: "list", resource: "lessons" })
   @Get("units/:unitId/lessons")
-  findAllByUnit(@Query() query: FindLessonsQueryDto, @Param("unitId") unitId: number) {
+  findAllByUnit(@Query() query: FindLessonsQueryDto, @Param("unitId") unitId: string) {
     return this.lessonService.findAll(query, unitId);
   }
 
   @Authorize({ action: "read", resource: "lessons" })
   @Get("lessons/:id")
-  findOne(@Param("id") id: number) {
+  findOne(@Param("id") id: string) {
     return this.lessonService.findOne(id);
   }
 
   @Authorize({ action: "update", resource: "lessons" })
   @Patch("lessons/:id")
-  update(@Param("id") id: number, @Body() updateLessonDto: UpdateLessonDto) {
+  update(@Param("id") id: string, @Body() updateLessonDto: UpdateLessonDto) {
     return this.lessonService.update(id, updateLessonDto);
   }
 
   @Authorize({ action: "delete", resource: "lessons" })
   @Delete("lessons/:id")
-  remove(@Param("id") id: number, @Query("hardDelete") hardDelete: boolean) {
+  remove(@Param("id") id: string, @Query("hardDelete") hardDelete: boolean) {
     return this.lessonService.remove(id, hardDelete);
   }
 
   @Authorize({ action: "read", resource: "lessons" })
   @Get("final-challenges/:id/unlock")
-  unlockFinalChallenge(@Param("id") id: number) {
+  unlockFinalChallenge(@Param("id") id: string) {
     return this.lessonService.unlockFinalChallenge(id);
   }
 }

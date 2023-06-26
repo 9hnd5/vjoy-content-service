@@ -72,8 +72,9 @@ describe("Units E2E Test", () => {
     let createDto: CreateUnitDto;
     beforeAll(() => {
       createDto = {
+        id: "test-unit",
         name: `unit-test-${generateNumber(6)}`,
-        levelId: "eng-A2",
+        levelId: "A2",
       };
     });
 
@@ -114,7 +115,7 @@ describe("Units E2E Test", () => {
     it("Should succeed due to user is content editor", () => {
       return agent
         .post(`${API_CONTENT_PREFIX}/units`)
-        .send(createDto)
+        .send({ ...createDto, id: createDto.id + "-content" })
         .set("Authorization", `Bearer ${contentToken}`)
         .expect((res) => {
           const result = res.body.data;
@@ -169,7 +170,7 @@ describe("Units E2E Test", () => {
         .patch(`${API_CONTENT_PREFIX}/units/undefined`)
         .send(updateDto)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.BAD_REQUEST);
+        .expect(HttpStatus.NOT_FOUND);
     });
 
     it("Should fail due to user is not admin or content editor", () => {
@@ -223,7 +224,7 @@ describe("Units E2E Test", () => {
       return agent
         .get(`${API_CONTENT_PREFIX}/units/undefined`)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.BAD_REQUEST);
+        .expect(HttpStatus.NOT_FOUND);
     });
 
     it("Should succeed due to user having sufficient privileges", () => {
@@ -248,7 +249,7 @@ describe("Units E2E Test", () => {
       return agent
         .delete(`${API_CONTENT_PREFIX}/units/undefined`)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.BAD_REQUEST);
+        .expect(HttpStatus.NOT_FOUND);
     });
 
     it("Should fail due to user is not admin or content editor", () => {

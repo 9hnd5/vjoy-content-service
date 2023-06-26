@@ -1,16 +1,16 @@
-import { IsBoolean, IsIn, IsInt, IsOptional, Matches } from "class-validator";
+import { IsBoolean, IsIn, IsInt, IsOptional, IsString, Matches } from "class-validator";
 
 export class CreateUpdateKidLessonProgressDto {
   @IsOptional()
-  @IsIn(["eng-A1", "eng-A2", "eng-preA1"])
+  @IsIn(["PreA1", "A1", "A2"])
   levelId?: string;
 
   @IsOptional()
-  @IsInt()
-  unitId?: number;
+  @IsString()
+  unitId?: string;
 
-  @IsInt()
-  lessonId: number;
+  @IsString()
+  lessonId: string;
 
   @IsIn([1, 2, 3])
   star: number;

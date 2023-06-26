@@ -3,6 +3,9 @@ import { UNIT_STATUS } from "entities/unit.entity";
 
 export class CreateUnitDto {
   @Length(1, 255)
+  id: string;
+
+  @Length(1, 255)
   name: string;
 
   @IsOptional()

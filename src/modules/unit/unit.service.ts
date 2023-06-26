@@ -36,7 +36,7 @@ export class UnitService extends BaseService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const unit = await this.unitModel.findOne({
       where: { id },
       include: [{ model: Level, attributes: ["id", "name"] }],
@@ -45,7 +45,7 @@ export class UnitService extends BaseService {
     return unit;
   }
 
-  async update(id: number, updateUnitDto: UpdateUnitDto) {
+  async update(id: string, updateUnitDto: UpdateUnitDto) {
     const unit = await this.unitModel.findOne({ where: { id } });
     if (!unit) throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: id } }));
 
@@ -59,7 +59,7 @@ export class UnitService extends BaseService {
     return unit.save();
   }
 
-  async remove(id: number, hardDelete = false) {
+  async remove(id: string, hardDelete = false) {
     const unit = await this.unitModel.findOne({ where: { id } });
     if (!unit) throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: id } }));
     if (hardDelete) {
