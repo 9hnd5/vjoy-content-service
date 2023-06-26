@@ -6,10 +6,12 @@ import {
   DataType,
   Default,
   ForeignKey,
+  HasMany,
   Model,
   Table,
   UpdatedAt,
 } from "sequelize-typescript";
+import { Lesson } from "./lesson.entity";
 import { Level } from "./level.entity";
 
 export const UNIT_STATUS = {
@@ -61,4 +63,7 @@ export class Unit extends Model<UnitAttributes, UnitCreationAttributes> {
 
   @UpdatedAt
   updatedAt: Date;
+
+  @HasMany(() => Lesson)
+  lessons: Lesson[];
 }
