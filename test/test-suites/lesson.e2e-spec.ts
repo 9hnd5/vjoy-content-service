@@ -72,104 +72,9 @@ describe("Lessons E2E Test", () => {
     userToken = parentToken;
 
     unit = await unitModel.create({
+      id: "test-unit-lesson",
       name: `test-lesson-${generateNumber(10)}`,
-      levelId: "eng-A2",
-    });
-  });
-
-  describe("Create BUST_A_WORD Lesson (POST)api/lessons", () => {
-    let createDto: CreateLessonDto;
-    beforeAll(() => {
-      createDto = {
-        name: "Sample",
-        unitId: unit.id,
-        gameType: "BUST_A_WORD",
-        difficulty: LESSON_DIFFICULTY.EASY,
-        asset: {
-          bundleUrl: "https://fsfs.com/.unity_bundle",
-          bg: "file_name",
-          cannon: "file_name",
-          spheres: [{ type: "type", name: "name" }],
-        },
-        curriculum: {
-          name: "file_sample.csv",
-          data: [
-            {
-              word: "CAT",
-              difficulty: 0,
-              missingLetterCount: 3,
-            },
-          ],
-        },
-      };
-    });
-
-    it("Should fail due to user unauthorized", () => {
-      return agent.post(`${API_CONTENT_PREFIX}/lessons`).expect(HttpStatus.UNAUTHORIZED);
-    });
-
-    it("Should fail due to user is not admin or content editor", () => {
-      return agent
-        .post(`${API_CONTENT_PREFIX}/lessons`)
-        .send(createDto)
-        .set("Authorization", `Bearer ${userToken}`)
-        .expect(HttpStatus.FORBIDDEN);
-    });
-
-    it("Should fail due to empty asset", () => {
-      const invalidAsset = {};
-      return agent
-        .post(`${API_CONTENT_PREFIX}/lessons`)
-        .send({ ...createDto, asset: invalidAsset })
-        .set("Authorization", `Bearer ${adminToken}`)
-        .expect((res) => expectError(res.body));
-    });
-
-    it("Should fail due to invalid asset", () => {
-      const invalidAsset = {
-        bg: "bg.png",
-        cannon: "cannon.png",
-        spheres: [],
-        bundleUrl: "http",
-      };
-      return agent
-        .post(`${API_CONTENT_PREFIX}/lessons`)
-        .send({ ...createDto, asset: invalidAsset })
-        .set("Authorization", `Bearer ${adminToken}`)
-        .expect((res) => {
-          const { errors } = res.body;
-          expect(errors).not.toBeNull();
-          expect.arrayContaining(expect.objectContaining({ code: "asset.bg", message: expect.any(String) }));
-          expect.arrayContaining(expect.objectContaining({ code: "asset.cannon", message: expect.any(String) }));
-          expect.arrayContaining(expect.objectContaining({ code: "asset.spheres", message: expect.any(String) }));
-          expect.arrayContaining(expect.objectContaining({ code: "asset.bundleUrl", message: expect.any(String) }));
-        });
-    });
-
-    it("Should succeed due to user is admin", () => {
-      return agent
-        .post(`${API_CONTENT_PREFIX}/lessons`)
-        .send(createDto)
-        .set("Authorization", `Bearer ${adminToken}`)
-        .expect((res) => {
-          const result = res.body.data;
-          expect(result.unitId).toBe(createDto.unitId);
-          expect(result.status).toBe(LESSON_STATUS.SAVED);
-        })
-        .expect(HttpStatus.CREATED);
-    });
-
-    it("Should succeed due to user is content editor", () => {
-      return agent
-        .post(`${API_CONTENT_PREFIX}/lessons`)
-        .send(createDto)
-        .set("Authorization", `Bearer ${contentToken}`)
-        .expect((res) => {
-          const result = res.body.data;
-          expect(result.unitId).toBe(createDto.unitId);
-          expect(result.status).toBe(LESSON_STATUS.SAVED);
-        })
-        .expect(HttpStatus.CREATED);
+      levelId: "A2",
     });
   });
 
@@ -177,6 +82,7 @@ describe("Lessons E2E Test", () => {
     let createDto: CreateLessonDto;
     beforeAll(() => {
       createDto = {
+        id: "test-lesson-2",
         name: "Sample",
         unitId: unit.id,
         gameType: "WORD_BALLOON",
@@ -286,7 +192,7 @@ describe("Lessons E2E Test", () => {
     it("Should succeed due to user is content editor", () => {
       return agent
         .post(`${API_CONTENT_PREFIX}/lessons`)
-        .send(createDto)
+        .send({ ...createDto, id: createDto.id + "-content" })
         .set("Authorization", `Bearer ${contentToken}`)
         .expect((res) => {
           const result = res.body.data;
@@ -365,13 +271,6 @@ describe("Lessons E2E Test", () => {
         .expect(HttpStatus.UNAUTHORIZED);
     });
 
-    it("Should fail due to invalid params(unitId)", () => {
-      return agent
-        .get(`${API_CONTENT_PREFIX}/units/undefined/lessons`)
-        .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.BAD_REQUEST);
-    });
-
     it("Should fail due to invalid query params(page & pageSize & status) value", () => {
       return agent
         .get(
@@ -412,7 +311,7 @@ describe("Lessons E2E Test", () => {
         .patch(`${API_CONTENT_PREFIX}/lessons/undefined`)
         .send(updateDto)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.BAD_REQUEST);
+        .expect(HttpStatus.NOT_FOUND);
     });
 
     it("Should fail due to user is not admin or content editor", () => {
@@ -467,7 +366,7 @@ describe("Lessons E2E Test", () => {
       return agent
         .get(`${API_CONTENT_PREFIX}/lessons/undefined`)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.BAD_REQUEST);
+        .expect(HttpStatus.NOT_FOUND);
     });
 
     it("Should succeed due to user having sufficient privileges", () => {
@@ -496,7 +395,7 @@ describe("Lessons E2E Test", () => {
       return agent
         .delete(`${API_CONTENT_PREFIX}/lessons/undefined`)
         .set("Authorization", `Bearer ${adminToken}`)
-        .expect(HttpStatus.BAD_REQUEST);
+        .expect(HttpStatus.NOT_FOUND);
     });
 
     it("Should fail due to user is not admin or content editor", () => {

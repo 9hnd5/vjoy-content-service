@@ -29,7 +29,7 @@ export class LessonService extends BaseService {
     return this.lessonModel.create(createLessonDto);
   }
 
-  findAll(query: FindLessonsQueryDto, unitId?: number) {
+  findAll(query: FindLessonsQueryDto, unitId?: string) {
     const signinUser = this.request.user!;
     if (!unitId && [ROLE_ID.ADMIN, ROLE_ID.CONTENT_EDITOR].indexOf(signinUser.roleId) < 0)
       throw new UnauthorizedException(this.i18n.t("message.NOT_PERMISSION"));
@@ -49,7 +49,7 @@ export class LessonService extends BaseService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const lesson = await this.lessonModel.findOne({
       where: { id },
       include: [{ model: Unit, attributes: ["id", "name", "levelId"] }],
@@ -59,7 +59,7 @@ export class LessonService extends BaseService {
     return lesson;
   }
 
-  async update(id: number, updateLessonDto: UpdateLessonDto) {
+  async update(id: string, updateLessonDto: UpdateLessonDto) {
     const lesson = await this.lessonModel.findOne({ where: { id } });
     if (!lesson) throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: id } }));
 
@@ -73,7 +73,7 @@ export class LessonService extends BaseService {
     return lesson.save();
   }
 
-  async remove(id: number, hardDelete = false) {
+  async remove(id: string, hardDelete = false) {
     const lesson = await this.lessonModel.findOne({ where: { id } });
     if (!lesson) throw new NotFoundException(this.i18n.t("message.NOT_FOUND", { args: { data: id } }));
     if (hardDelete) {
@@ -84,7 +84,7 @@ export class LessonService extends BaseService {
     return (await lesson.update({ status: LESSON_STATUS.HIDDEN })).dataValues;
   }
 
-  async unlockFinalChallenge(lessonId: number) {
+  async unlockFinalChallenge(lessonId: string) {
     const lesson = await this.lessonModel.findByPk(lessonId);
 
     if (!lesson) return false;

@@ -2,7 +2,7 @@ import { Optional } from "sequelize";
 import { Column, CreatedAt, DataType, Model, Table, UpdatedAt } from "sequelize-typescript";
 
 export type LevelAttributes = {
-  id: number;
+  id: string;
   name: string;
   subject: string;
   status: number;
@@ -13,9 +13,9 @@ export type LevelAttributes = {
 };
 
 export const LEVEL_ID = {
-  ENG_PREA1: "eng-preA1",
-  ENG_A1: "eng-A1",
-  ENG_A2: "eng-A2",
+  ENG_PREA1: "PreA1",
+  ENG_A1: "A1",
+  ENG_A2: "A2",
 };
 
 type LevelCreationAttributes = Optional<LevelAttributes, "id" | "createdAt" | "updatedAt">;

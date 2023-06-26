@@ -6,8 +6,8 @@ type KidLessonProgressAttributes = {
   id: number;
   learningDataId: number;
   levelId?: string;
-  unitId?: number;
-  lessonId: number;
+  unitId?: string;
+  lessonId: string;
   isGemUnlocked: boolean;
   star: number;
   type: "challenge" | "lesson";
@@ -37,10 +37,10 @@ export class KidLessonProgress extends Model<KidLessonProgressAttributes, KidLes
   levelId: string;
 
   @Column
-  unitId: number;
+  unitId: string;
 
   @Column({ allowNull: false })
-  lessonId: number;
+  lessonId: string;
 
   @Column
   isGemUnlocked: boolean;

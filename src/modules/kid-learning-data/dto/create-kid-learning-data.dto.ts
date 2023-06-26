@@ -3,7 +3,7 @@ import {} from "sequelize-typescript";
 
 export class CreateKidLearningDataDto {
   @IsNotEmpty()
-  @IsIn(["eng-A1", "eng-A2", "eng-preA1"])
+  @IsIn(["PreA1", "A1", "A2"])
   currentLevelId: string;
 
   @IsNotEmpty()

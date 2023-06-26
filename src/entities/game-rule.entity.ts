@@ -4,7 +4,7 @@ import { Column, DataType, Model, Table } from "sequelize-typescript";
 export type GameRuleAttributes = {
   id: number;
   levelId: string;
-  unitId: number;
+  unitId: string;
   type: "lesson" | "challenge";
   firstPlayReward: number;
   replayFailureReward: number;
@@ -23,7 +23,7 @@ export class GameRule extends Model<GameRuleAttributes, GameRuleCreationAttribut
   levelId: string;
 
   @Column({ type: DataType.STRING(255), allowNull: false })
-  unitId: number;
+  unitId: string;
 
   @Column({ type: DataType.STRING(255), allowNull: false })
   type: "lesson" | "challenge";

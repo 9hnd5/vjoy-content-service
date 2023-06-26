@@ -50,7 +50,7 @@ describe("Kid Learning Data E2E", () => {
     let data: any;
     beforeAll(() => {
       data = {
-        currentLevelId: "eng-preA1",
+        currentLevelId: "PreA1",
         buddyId: "1",
         parentId: 1,
         character: "test-character",
@@ -268,9 +268,9 @@ describe("Kid Learning Data E2E", () => {
       let learningData: KidLearningData["dataValues"];
       let gameRule: GameRule["dataValues"];
       const data = {
-        levelId: "eng-preA1",
-        unitId: -generateNumber(4),
-        lessonId: 1,
+        levelId: "PreA1",
+        unitId: "PreA1_U1",
+        lessonId: "test-lesson",
         star: KID_LESSON_PROGRESS_STAR.EASY,
         type: item,
         isWin: true,
@@ -320,7 +320,7 @@ describe("Kid Learning Data E2E", () => {
             const error = res.body.errors;
             expect(error).toEqual([
               {
-                code: "isInt",
+                code: "isString",
                 message: expect.any(String),
               },
               {

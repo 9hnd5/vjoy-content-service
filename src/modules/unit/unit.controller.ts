@@ -25,19 +25,19 @@ export class UnitController {
 
   @Authorize({ action: "read", resource: "units" })
   @Get(":id")
-  findOne(@Param("id") id: number) {
+  findOne(@Param("id") id: string) {
     return this.unitsService.findOne(id);
   }
 
   @Authorize({ action: "update", resource: "units" })
   @Patch(":id")
-  update(@Param("id") id: number, @Body() updateUnitDto: UpdateUnitDto) {
+  update(@Param("id") id: string, @Body() updateUnitDto: UpdateUnitDto) {
     return this.unitsService.update(id, updateUnitDto);
   }
 
   @Authorize({ action: "delete", resource: "units" })
   @Delete(":id")
-  remove(@Param("id") id: number, @Query("hardDelete") hardDelete: boolean) {
+  remove(@Param("id") id: string, @Query("hardDelete") hardDelete: boolean) {
     return this.unitsService.remove(id, hardDelete);
   }
 }
