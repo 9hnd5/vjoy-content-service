@@ -2,7 +2,7 @@
 
 import { Path } from "nestjs-i18n";
 export type I18nTranslations = {
-    "kid-learning-data": {
+    "kid-data": {
         "NOT_ENOUGH_COIN": string;
         "INVALID_LESSON_UNLOCK": string;
         "NOT_ENOUGH_ENERGY": string;
