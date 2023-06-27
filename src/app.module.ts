@@ -4,10 +4,11 @@ import { SequelizeModule } from "@nestjs/sequelize";
 import { camelCase } from "lodash";
 import { BuddyModule } from "modules/buddy/buddy.module";
 import { GameRuleModule } from "modules/game-rule/game-rule.module";
-import { KidLearningDataModule } from "modules/kid-learning-data/kid-learning-data.module";
+import { KidDataModule } from "modules/kid-data/kid-data.module";
 import { LessonModule } from "modules/lesson/lesson.module";
 import { LevelModule } from "modules/level/level.module";
 import { UnitModule } from "modules/unit/unit.module";
+import { KidLessonModule } from "./modules/kid-lesson/kid-lesson.module";
 import * as path from "path";
 const contentEntityPath = path.join(__dirname, "entities/*.entity*");
 const coreEntityPath = path.join(__dirname, "..", "nest-common-module/entities/*.entity*");
@@ -44,7 +45,8 @@ const coreEntityPath = path.join(__dirname, "..", "nest-common-module/entities/*
     LevelModule,
     BuddyModule,
     GameRuleModule,
-    KidLearningDataModule,
+    KidDataModule,
+    KidLessonModule,
   ],
   controllers: [],
   providers: [],

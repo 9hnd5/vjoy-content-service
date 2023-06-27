@@ -8,7 +8,7 @@ import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { FindLessonsQueryDto } from "./dto/find-lessons-query.dto";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import { GameRule } from "entities/game-rule.entity";
-import { KidLessonProgress } from "entities/kid-lesson-progress.entity";
+import { KidLesson } from "entities/kid-lesson.entity";
 
 @Injectable()
 export class LessonService extends BaseService {
@@ -16,7 +16,7 @@ export class LessonService extends BaseService {
     @InjectModel(Unit) private unitModel: typeof Unit,
     @InjectModel(Lesson) private lessonModel: typeof Lesson,
     @InjectModel(GameRule) private gameRuleModel: typeof GameRule,
-    @InjectModel(KidLessonProgress) private kidLessonProgressModel: typeof KidLessonProgress
+    @InjectModel(KidLesson) private kidLessonProgressModel: typeof KidLesson
   ) {
     super();
   }

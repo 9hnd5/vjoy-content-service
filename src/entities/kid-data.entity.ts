@@ -1,8 +1,8 @@
 import { Optional } from "sequelize";
 import { Column, DataType, HasMany, Model, Table } from "sequelize-typescript";
-import { KidLessonProgress } from "./kid-lesson-progress.entity";
+import { KidLesson } from "./kid-lesson.entity";
 
-type KidLearningDataAttributes = {
+type KidDataAttributes = {
   kidId: number;
   gem: number;
   coin: number;
@@ -21,13 +21,13 @@ export type LearningGoal = {
   w?: number[];
 };
 
-type KidLearningDataCreationAttributes = Optional<
-  KidLearningDataAttributes,
+type KidDataCreationAttributes = Optional<
+  KidDataAttributes,
   "kidId" | "gem" | "coin" | "energy" | "countBuyEnergy"
 >;
 
-@Table({ tableName: "kid_learning_data", schema: "content", version: true, timestamps: false })
-export class KidLearningData extends Model<KidLearningDataAttributes, KidLearningDataCreationAttributes> {
+@Table({ tableName: "kid_data", schema: "content", version: true, timestamps: false })
+export class KidData extends Model<KidDataAttributes, KidDataCreationAttributes> {
   @Column({ primaryKey: true })
   kidId: number; //kidId
 
@@ -37,7 +37,7 @@ export class KidLearningData extends Model<KidLearningDataAttributes, KidLearnin
   @Column({ allowNull: false, defaultValue: 0 })
   coin: number;
 
-  @Column({ allowNull: false, defaultValue: 0 })
+  @Column({ allowNull: false, defaultValue: 120 })
   energy: number;
 
   @Column({ allowNull: false, defaultValue: 0 })
@@ -55,12 +55,12 @@ export class KidLearningData extends Model<KidLearningDataAttributes, KidLearnin
   @Column(DataType.JSONB)
   learningGoal?: LearningGoal;
 
-  @Column("timestamp")
+  @Column({ type: "timestamp", defaultValue: new Date() })
   lastUpdatedEnergy?: Date;
 
   @Column("timestamp")
   lastBoughtEnergy?: Date;
 
-  @HasMany(() => KidLessonProgress, { onDelete: "CASCADE", onUpdate: "CASCADE" })
-  kidLessonProgresses: KidLessonProgress[];
+  @HasMany(() => KidLesson, { onDelete: "CASCADE", onUpdate: "CASCADE" })
+  kidLessons: KidLesson[];
 }
