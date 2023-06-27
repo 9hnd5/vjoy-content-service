@@ -32,4 +32,10 @@ export class KidDataController {
   async getKidDataStar(@Param("kidId") kidId: number) {
     return this.kidDataService.getStar(kidId);
   }
+
+  @Authorize({ resource: "kid-learning-data", action: "read" })
+  @Get("kid-data")
+  getKidData() {
+    return this.kidDataService.getDataByUser();
+  }
 }
