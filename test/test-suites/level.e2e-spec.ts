@@ -93,19 +93,8 @@ describe("Level E2E test", () => {
   });
 
   describe("Get world map (Get)api/world-map/:levelId/kid/:kidId", () => {
-    it("should succeed due to user was authorized", () => {
-      return agent
-        .get(`${API_CONTENT_PREFIX}/levels`)
-        .expect((res) => {
-          const data = res.body.data;
-          expect(data).toHaveProperty("count");
-          expect(data).toHaveProperty("rows");
-        })
-        .expect(HttpStatus.OK);
-    });
-
     it("worldMap should return the correct data structure", async () => {
-      return agent.get(`${API_CONTENT_PREFIX}/world-map/A1/19312`).expect((res) => {
+      return agent.get(`${API_CONTENT_PREFIX}/world-map/A1/kid/19312`).expect((res) => {
         const data = res.body.data;
         data.forEach((unit) => {
           expect(unit).toHaveProperty("id");

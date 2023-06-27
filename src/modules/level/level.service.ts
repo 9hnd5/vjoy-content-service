@@ -52,7 +52,7 @@ export class LevelService {
           include: [
             {
               model: KidLesson,
-              where: { learningDataId: kidId },
+              where: { kidId: kidId },
               attributes: ["star"],
               required: false,
             },

@@ -24,7 +24,7 @@ export class LevelController {
 
   @Authorize({ resource: "levels", action: "read" })
   @Get("world-map/:levelId/kid/:kidId")
-  findOne(@Param("levelId") levelId: string, @Param("kidId") kidId: number) {
+  worldMap(@Param("levelId") levelId: string, @Param("kidId") kidId: number) {
     return this.levelService.worldMap(levelId, kidId);
   }
 }
