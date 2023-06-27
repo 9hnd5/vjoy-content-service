@@ -6,7 +6,7 @@ export class CreateKidLessonDto {
   @MaxLength(255)
   lessonId: string;
 
-  @Matches(/^(lesson|challenge)$/)
+  @IsIn(["lesson", "challenge"])
   type: "lesson" | "challenge";
 
   @IsIn([1, 2, 3])
