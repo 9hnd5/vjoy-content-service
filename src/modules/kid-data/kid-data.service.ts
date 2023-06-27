@@ -72,18 +72,8 @@ export class KidDataService extends BaseService<I18nTranslations> {
         this.i18n.t("message.NOT_FOUND", { args: { data: kidId } })
       );
 
-    const minutes = dayjs(new Date()).diff(existKidLearningData.lastUpdatedEnergy, "minutes");
-
-    if (minutes >= 5) {
-      const newEnergy = minutes * ENERGY_PER_MINUTE + existKidLearningData.energy;
-      existKidLearningData.energy = Math.floor(newEnergy >= MAX_ENERGY ? MAX_ENERGY : newEnergy);
-      existKidLearningData.lastUpdatedEnergy = new Date();
-      await existKidLearningData.save();
-    }
-
     return {
       energy: existKidLearningData.energy,
-      lastUpdatedEnergy: existKidLearningData.lastUpdatedEnergy,
     };
   }
 
@@ -91,14 +81,16 @@ export class KidDataService extends BaseService<I18nTranslations> {
     const existKidLearningData = await this.kidDataModel.findByPk(kidId, { include: [KidLesson] });
 
     if (!existKidLearningData)
-      throw new NotFoundException(
-        { code: ERROR_CODE.USER_NOT_FOUND },
-        this.i18n.t("message.NOT_FOUND", { args: { data: kidId } })
-      );
+      throw new NotFoundException({
+        code: ERROR_CODE.USER_NOT_FOUND,
+        message: this.i18n.t("message.NOT_FOUND", { args: { data: kidId } }),
+      });
 
-    return existKidLearningData.kidLessons.reduce((prev, curr) => {
-      return prev + curr.star;
-    }, 0);
+    return {
+      star: existKidLearningData.kidLessons.reduce((prev, curr) => {
+        return prev + curr.star;
+      }, 0),
+    };
   }
 
   async buyEnergy(kidId: number) {
