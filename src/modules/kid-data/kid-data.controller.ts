@@ -15,12 +15,6 @@ export class KidDataController {
     return this.kidDataService.create(data);
   }
 
-  @Authorize({ resource: "kid-learning-data", action: "create" })
-  @Post("kid-learning-data")
-  createKidData2(@Body() data: CreateKidDataDto) {
-    return this.kidDataService.create(data);
-  }
-
   @Authorize({ resource: "kid-learning-data", action: "read" })
   @Get("kid-data/:kidId/energy")
   async getKidDataEnergy(@Param("kidId") kidId: number) {
