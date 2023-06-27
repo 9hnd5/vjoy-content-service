@@ -1,8 +1,7 @@
 import { IsNotEmpty, IsIn } from "class-validator";
 import {} from "sequelize-typescript";
 
-export class CreateKidLearningDataDto {
-  @IsNotEmpty()
+export class CreateKidDataDto {
   @IsIn(["PreA1", "A1", "A2"])
   currentLevelId: string;
 

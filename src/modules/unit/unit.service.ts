@@ -21,7 +21,7 @@ export class UnitService extends BaseService {
     return this.unitModel.create(createUnitDto);
   }
 
-  findAll(query: FindUnitsQueryDto) {
+  async findAll(query: FindUnitsQueryDto) {
     const { limit, offset, sort: order } = query;
     const { levelId, status } = query.filter || {};
     return this.unitModel.findAndCountAll({
