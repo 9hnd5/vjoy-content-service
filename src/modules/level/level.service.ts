@@ -6,15 +6,14 @@ import { isNil } from "lodash";
 import { Op, col, fn } from "sequelize";
 import { FindLevelSuggestionDto } from "./dto/find-level-suggestion.dto";
 import { FindLevelsQueryDto } from "./dto/find-levels.dto";
-import { KidLessonProgress } from "entities/kid-lesson-progress.entity";
 import { Lesson } from "entities/lesson.entity";
+import { KidLesson } from "entities/kid-lesson.entity";
 
 @Injectable()
 export class LevelService {
   constructor(
     @InjectModel(Level) private levelModel: typeof Level,
-    @InjectModel(Unit) private unitModel: typeof Unit,
-    @InjectModel(KidLessonProgress) private kidLessonProgessModel: typeof KidLessonProgress
+    @InjectModel(Unit) private unitModel: typeof Unit
   ) {}
 
   find(query: FindLevelsQueryDto) {
@@ -52,7 +51,7 @@ export class LevelService {
           attributes: ["id", "name", "unitId"],
           include: [
             {
-              model: KidLessonProgress,
+              model: KidLesson,
               where: { learningDataId: kidId },
               attributes: ["star"],
               required: false,
@@ -74,9 +73,7 @@ export class LevelService {
         delete lessonObj.kidLessonProgress;
         unitObj.lessons.push({ ...lessonObj, totalStars });
       }
-      const totalStars = unitObj.lessons
-          ? unitObj.lessons.reduce((partialSum, a) => partialSum + a.totalStars, 0)
-          : 0;
+      const totalStars = unitObj.lessons ? unitObj.lessons.reduce((partialSum, a) => partialSum + a.totalStars, 0) : 0;
       result.push({ ...unitObj, totalStars });
     }
 
