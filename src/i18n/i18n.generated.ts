@@ -7,6 +7,9 @@ export type I18nTranslations = {
         "INVALID_LESSON_UNLOCK": string;
         "NOT_ENOUGH_ENERGY": string;
     };
+    "kid-lesson": {
+        "INVALID_DIFFICULTY": string;
+    };
     "message": {
         "INVALID": string;
         "IS_EXISTED": string;

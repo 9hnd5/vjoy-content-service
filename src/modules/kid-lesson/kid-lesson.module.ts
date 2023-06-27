@@ -5,9 +5,10 @@ import { SequelizeModule } from "@nestjs/sequelize";
 import { KidData } from "entities/kid-data.entity";
 import { KidLesson } from "entities/kid-lesson.entity";
 import { GameRule } from "entities/game-rule.entity";
+import { Lesson } from "entities/lesson.entity";
 
 @Module({
-  imports: [SequelizeModule.forFeature([KidData, KidLesson, GameRule])],
+  imports: [SequelizeModule.forFeature([KidData, KidLesson, GameRule, Lesson])],
   providers: [KidLessonService],
   controllers: [KidLessonController],
 })

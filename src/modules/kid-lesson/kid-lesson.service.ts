@@ -1,12 +1,14 @@
+import { BaseService, ERROR_CODE } from "@common";
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
+import { GameRule } from "entities/game-rule.entity";
 import { KidData } from "entities/kid-data.entity";
+import { KID_LESSON_STAR, KidLesson } from "entities/kid-lesson.entity";
+import { Lesson } from "entities/lesson.entity";
+import { Unit } from "entities/unit.entity";
+import { I18nTranslations } from "i18n/i18n.generated";
 import { Sequelize } from "sequelize-typescript";
 import { CreateKidLessonDto } from "./dto/create-kid-lesson.dto";
-import { BaseService, ERROR_CODE } from "@common";
-import { I18nTranslations } from "i18n/i18n.generated";
-import { KID_LESSON_STAR, KidLesson } from "entities/kid-lesson.entity";
-import { GameRule } from "entities/game-rule.entity";
 import { StartKidLessonDto } from "./dto/start-kid-lesson.dto";
 
 @Injectable()
@@ -15,6 +17,7 @@ export class KidLessonService extends BaseService<I18nTranslations> {
     @InjectModel(KidData) private kidDataModel: typeof KidData,
     @InjectModel(KidLesson) private kidLessonModel: typeof KidLesson,
     @InjectModel(GameRule) private gameRuleModel: typeof GameRule,
+    @InjectModel(Lesson) private lessonModel: typeof Lesson,
     private sequelize: Sequelize
   ) {
     super();
@@ -24,7 +27,9 @@ export class KidLessonService extends BaseService<I18nTranslations> {
     try {
       return this.sequelize.transaction(async (t) => {
         const transactionHost = { transaction: t };
-        const { isWin, levelId, unitId, lessonId, star, type } = data;
+
+        const { lessonId, difficulty, type } = data;
+
         const kidData = await this.kidDataModel.findByPk(kidId);
         if (!kidData)
           throw new NotFoundException({
@@ -32,9 +37,17 @@ export class KidLessonService extends BaseService<I18nTranslations> {
             message: this.i18n.t("message.NOT_FOUND", { args: { data: kidId } }),
           });
 
-        let kidLesson = await this.kidLessonModel.findOne({
-          where: { levelId, unitId, lessonId, kidId },
+        const lesson = await this.lessonModel.findByPk(lessonId, {
+          include: Unit,
         });
+        if (!lesson) throw new NotFoundException();
+
+        let kidLesson = await this.kidLessonModel.findOne({
+          where: { lessonId, kidId },
+        });
+
+        const levelId = lesson.unit.levelId;
+        const unitId = lesson.unitId;
 
         const gameRule = await this.gameRuleModel.findOne({ where: { levelId, type } });
 
@@ -45,79 +58,56 @@ export class KidLessonService extends BaseService<I18nTranslations> {
         let energyCost = gameRule?.energyCost ?? 0;
         let gemReward = 1;
 
-        if (energyCost > kidData.energy)
-          throw new BadRequestException({
-            code: ERROR_CODE.NOT_ENOUGH_ENERGY,
-            message: this.i18n.t("kid-data.NOT_ENOUGH_ENERGY"),
-          });
-
-        kidData.energy -= energyCost;
         kidData.currentLevelId = levelId;
         kidData.currentUnitId = unitId;
+        kidData.coin += firstPlayAndSuccessCoinReward;
 
-        //First play and star = 1
         if (!kidLesson) {
-          if (star !== KID_LESSON_STAR.EASY)
-            throw new BadRequestException({
-              code: ERROR_CODE.INVALID_LESSON_UNLOCK,
-              message: this.i18n.t("kid-data.INVALID_LESSON_UNLOCK"),
-            });
-
-          kidData.coin += isWin ? firstPlayAndSuccessCoinReward : firstPlayAndFailureCoinReward;
-          this.kidLessonModel.create(
-            {
-              levelId,
-              unitId,
-              lessonId,
-              type,
-              kidId,
-              star,
-              isGemUnlocked: false,
-            },
-            transactionHost
-          );
-        }
-
-        //Replay and win with the same star
-        if (kidLesson && isWin && kidLesson.star === star) {
-          if (star === KID_LESSON_STAR.HARD && kidLesson.star === KID_LESSON_STAR.HARD && !kidLesson.isGemUnlocked) {
-            kidData.gem += gemReward;
-            kidLesson.isGemUnlocked = true;
-          }
-          kidData.coin += replaySuccessCoinReward;
-        }
-        //Replay and fail with the same star
-        if (kidLesson && !isWin && kidLesson.star === star) {
-          kidData.coin += replayFailureCoinReward;
-        }
-
-        //Replay and win with different star
-        if (kidLesson && isWin && kidLesson.star !== star) {
-          const gapStar = star - kidLesson.star;
-          if (gapStar > 0 && gapStar >= 2)
-            throw new BadRequestException({
-              code: ERROR_CODE.INVALID_LESSON_UNLOCK,
-              message: this.i18n.t("kid-data.INVALID_LESSON_UNLOCK"),
-            });
-
-          if (star > kidLesson.star) {
-            kidData.coin += firstPlayAndSuccessCoinReward;
-            kidLesson.star += 1;
+          if (difficulty === KID_LESSON_STAR.EASY) {
+            kidLesson = await this.kidLessonModel.create(
+              {
+                levelId,
+                unitId,
+                lessonId,
+                type,
+                kidId,
+                star: difficulty,
+                isGemUnlocked: false,
+              },
+              transactionHost
+            );
           } else {
-            kidData.coin += replaySuccessCoinReward;
+            throw new BadRequestException({
+              code: ERROR_CODE.INVALID_DIFFICULTY,
+              message: this.i18n.t("kid-lesson.INVALID_DIFFICULTY"),
+            });
           }
-        }
+        } else {
+          if (difficulty <= kidLesson.star)
+            throw new BadRequestException({
+              code: ERROR_CODE.INVALID_DIFFICULTY,
+              message: this.i18n.t("kid-lesson.INVALID_DIFFICULTY"),
+            });
 
-        //Replay and fail with different star
-        if (kidLesson && !isWin && kidLesson.star !== star) {
-          if (star <= kidLesson.star) {
-            kidData.coin += replayFailureCoinReward;
-          }
+          if (difficulty - kidLesson.star >= 2)
+            throw new BadRequestException({
+              code: ERROR_CODE.INVALID_DIFFICULTY,
+              message: this.i18n.t("kid-lesson.INVALID_DIFFICULTY"),
+            });
+
+          kidLesson.star += 1;
         }
 
         await kidData.save(transactionHost);
 
-        return kidLesson?.save(transactionHost);
+        await kidLesson.save(transactionHost);
+
+        return {
+          id: lesson.id,
+          name: lesson.name,
+          unitId: lesson.unitId,
+          star: kidLesson.star,
+        };
       });
     } catch (err) {
       console.error(err);
@@ -126,9 +116,16 @@ export class KidLessonService extends BaseService<I18nTranslations> {
   }
 
   async start(kidId: number, data: StartKidLessonDto) {
-    const { levelId, type } = data;
+    const { lessonId, type } = data;
+    const lesson = await this.lessonModel.findByPk(lessonId, {
+      include: Unit,
+    });
+    if (!lesson) throw new NotFoundException();
 
-    const existKidData = await this.kidDataModel.findByPk(kidId);
+    const levelId = lesson.unit.levelId;
+    const unitId = lesson.unitId;
+
+    const existKidData = await this.kidDataModel.findByPk(kidId, { include: KidLesson });
     if (!existKidData)
       throw new NotFoundException({
         code: ERROR_CODE.USER_NOT_FOUND,
@@ -149,8 +146,14 @@ export class KidLessonService extends BaseService<I18nTranslations> {
     existKidData.energy -= energyCost;
     await existKidData.save();
 
+    const star = existKidData.kidLessons.find((x) => x.lessonId === lessonId)?.star;
+
     return {
       energy: existKidData.energy,
+      star: star ?? 0,
+      levelId,
+      unitId,
+      lessonId,
     };
   }
 }

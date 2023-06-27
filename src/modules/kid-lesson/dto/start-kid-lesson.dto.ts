@@ -1,9 +1,10 @@
-import { IsIn, IsNotEmpty } from "class-validator";
+import { IsIn, IsNotEmpty, IsString } from "class-validator";
 
 export class StartKidLessonDto {
-  @IsIn(["PreA1", "A1", "A2"])
-  levelId: string;
+  @IsNotEmpty()
+  @IsString()
+  lessonId: string;
 
-  @IsIn(["lessons", "challenge"])
-  type: string;
+  @IsIn(["lesson", "challenge"])
+  type: "lesson" | "challenge";
 }
