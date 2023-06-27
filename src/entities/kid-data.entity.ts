@@ -75,14 +75,14 @@ export class KidData extends Model<KidDataAttributes, KidDataCreationAttributes>
   kidLessons: KidLesson[];
 
   @AfterFind
-  static calculateEnergy(instance: KidData) {
+  static async calculateEnergy(instance: KidData) {
     if (instance) {
       const minutes = dayjs(new Date()).diff(instance?.lastUpdatedEnergy, "minutes");
       if (minutes >= 5) {
         const newEnergy = minutes * ENERGY_PER_MINUTE + instance.energy;
         instance.energy = Math.floor(newEnergy >= MAX_ENERGY ? MAX_ENERGY : newEnergy);
         instance.lastUpdatedEnergy = new Date();
-        instance.save();
+        await instance.save();
       }
     }
   }
