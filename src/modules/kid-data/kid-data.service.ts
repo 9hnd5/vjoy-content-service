@@ -4,12 +4,12 @@ import { InjectModel } from "@nestjs/sequelize";
 import dayjs from "dayjs";
 import isToday from "dayjs/plugin/isToday";
 import { KidData } from "entities/kid-data.entity";
+import { KidLesson } from "entities/kid-lesson.entity";
 import { Level } from "entities/level.entity";
 import { I18nTranslations } from "i18n/i18n.generated";
 import { Sequelize } from "sequelize-typescript";
 import { CreateKidDataDto } from "./dto/create-kid-data.dto";
 import { COST_COIN, ENERGY_BUY_WITH_COIN, ENERGY_PER_MINUTE, MAX_ENERGY } from "./kid-data.constants";
-import { KidLesson } from "entities/kid-lesson.entity";
 dayjs.extend(isToday);
 
 @Injectable()
@@ -153,5 +153,36 @@ export class KidDataService extends BaseService<I18nTranslations> {
     if (learningData.energy < 0) throw new BadRequestException(this.i18n.t("kid-data.NOT_ENOUGH_ENERGY"));
 
     return learningData.save();
+  }
+
+  async getDataByUser() {
+    const { userId } = this.request.user!;
+    const kids = await this.userModel.findAll({ where: { parentId: userId } });
+
+    if (!kids || kids.length === 0)
+      throw new NotFoundException(
+        { code: ERROR_CODE.USER_NOT_FOUND },
+        this.i18n.t("message.NOT_FOUND", { args: { data: "Kids" } })
+      );
+
+    const kidIds = kids.map((kid) => kid.id);
+    const kidsDetail = await this.kidDetailModel.findAll({
+      where: { kidId: kidIds },
+    });
+    const learningDataForKids = await this.kidDataModel.findAll({
+      where: { kidId: kidIds },
+    });
+    const result = kidsDetail.map((detailItem) => {
+      const correspondingLearningData = learningDataForKids.find((ld) => ld.kidId === detailItem.kidId);
+      if (correspondingLearningData) {
+        return {
+          ...detailItem.dataValues,
+          ...correspondingLearningData.dataValues,
+        };
+      }
+      return detailItem;
+    });
+
+    return result;
   }
 }

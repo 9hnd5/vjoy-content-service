@@ -1,13 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
+import { KidLesson } from "entities/kid-lesson.entity";
+import { Lesson } from "entities/lesson.entity";
 import { LEVEL_ID, Level } from "entities/level.entity";
 import { Unit } from "entities/unit.entity";
 import { isNil } from "lodash";
-import { Op, col, fn } from "sequelize";
+import { Op } from "sequelize";
 import { FindLevelSuggestionDto } from "./dto/find-level-suggestion.dto";
 import { FindLevelsQueryDto } from "./dto/find-levels.dto";
-import { Lesson } from "entities/lesson.entity";
-import { KidLesson } from "entities/kid-lesson.entity";
 
 @Injectable()
 export class LevelService {
