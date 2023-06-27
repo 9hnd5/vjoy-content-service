@@ -6,11 +6,13 @@ import {
   DataType,
   Default,
   ForeignKey,
+  HasMany,
   Model,
   Table,
   UpdatedAt,
 } from "sequelize-typescript";
 import { Unit } from "./unit.entity";
+import { KidLesson } from "./kid-lesson.entity";
 
 export const LESSON_STATUS = {
   SAVED: 0,
@@ -89,4 +91,7 @@ export class Lesson extends Model<LessonAttributes, LessonCreationAttributes> {
 
   @UpdatedAt
   updatedAt: Date;
+
+  @HasMany(() => KidLesson, { foreignKey: "lessonId", sourceKey: "id" })
+  kidLessonProgress: KidLesson[];
 }
