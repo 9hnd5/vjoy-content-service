@@ -61,22 +61,18 @@ export class LevelService {
       ],
     });
 
-    const result: any[] = [];
-    for (const unit of units) {
-      const unitObj: any = unit.toJSON();
-      unitObj.lessons = [];
-      for (const lesson of unit.lessons) {
-        const lessonObj: any = lesson.toJSON();
-        const totalStars = lessonObj.kidLessonProgress
-          ? lessonObj.kidLessonProgress.reduce((partialSum, a) => partialSum + a.star, 0)
-          : 0;
-        delete lessonObj.kidLessonProgress;
-        unitObj.lessons.push({ ...lessonObj, totalStars });
-      }
-      const totalStars = unitObj.lessons ? unitObj.lessons.reduce((partialSum, a) => partialSum + a.totalStars, 0) : 0;
-      result.push({ ...unitObj, totalStars });
-    }
+    const calculateTotalStars = (array, key) => array.reduce((partialSum, a) => partialSum + (a[key] || 0), 0);
 
-    return result;
+    return units.map((unit) => {
+      const unitObj: any = unit.toJSON();
+      unitObj.lessons = unit.lessons.map((lesson) => {
+        const lessonObj: any = lesson.toJSON();
+        const totalStars = calculateTotalStars(lessonObj.kidLessonProgress, "star");
+        delete lessonObj.kidLessonProgress;
+        return { ...lessonObj, totalStars };
+      });
+      const totalStars = calculateTotalStars(unitObj.lessons, "totalStars");
+      return { ...unitObj, totalStars };
+    });
   }
 }
