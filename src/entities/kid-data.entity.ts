@@ -1,8 +1,7 @@
-import { Optional } from "sequelize";
-import { AfterFind, BeforeFind, BeforeUpdate, Column, DataType, HasMany, Model, Table } from "sequelize-typescript";
-import { KidLesson } from "./kid-lesson.entity";
 import dayjs from "dayjs";
-import isToday from "dayjs/plugin/isToday";
+import { Optional } from "sequelize";
+import { AfterFind, Column, DataType, HasMany, Model, Table } from "sequelize-typescript";
+import { KidLesson } from "./kid-lesson.entity";
 
 export const COST_COIN = {
   FIRST_TIME: 30,
