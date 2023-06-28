@@ -9,6 +9,7 @@ import { Level } from "entities/level.entity";
 import { I18nTranslations } from "i18n/i18n.generated";
 import { Sequelize } from "sequelize-typescript";
 import { CreateKidDataDto } from "./dto/create-kid-data.dto";
+import { UpdateKidDataDto } from "./dto/update-kid-data.dto";
 import { COST_COIN, ENERGY_BUY_WITH_COIN, ENERGY_PER_MINUTE, MAX_ENERGY } from "./kid-data.constants";
 dayjs.extend(isToday);
 
@@ -61,6 +62,29 @@ export class KidDataService extends BaseService<I18nTranslations> {
       console.log(err);
       throw err;
     }
+  }
+
+  async update(kidId: number, data: UpdateKidDataDto) {
+    const { currentLevelId } = data;
+
+    const currentLevel = await this.levelModel.findByPk(currentLevelId);
+    if (!currentLevel) {
+      throw new NotFoundException({
+        code: ERROR_CODE.LEVEL_NOT_FOUND,
+        message: this.i18n.t("message.NOT_FOUND", { args: { data: "Level" } }),
+      });
+    }
+
+    const existKidData = await this.kidDataModel.findByPk(kidId);
+
+    if (!existKidData) {
+      throw new NotFoundException({
+        code: ERROR_CODE.KID_NOT_FOUND,
+        message: this.i18n.t("message.NOT_FOUND", { args: { data: "Kid" } }),
+      });
+    }
+
+    return existKidData.update(data);
   }
 
   async getEnergy(kidId: number) {
@@ -153,7 +177,7 @@ export class KidDataService extends BaseService<I18nTranslations> {
 
     if (!kids || kids.length === 0)
       throw new NotFoundException(
-        { code: ERROR_CODE.USER_NOT_FOUND },
+        { code: ERROR_CODE.KID_NOT_FOUND },
         this.i18n.t("message.NOT_FOUND", { args: { data: "Kids" } })
       );
 
