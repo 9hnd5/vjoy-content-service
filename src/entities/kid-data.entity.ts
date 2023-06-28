@@ -82,7 +82,7 @@ export class KidData extends Model<KidDataAttributes, KidDataCreationAttributes>
         const newEnergy = minutes * ENERGY_PER_MINUTE + instance.energy;
         instance.energy = Math.floor(newEnergy >= MAX_ENERGY ? MAX_ENERGY : newEnergy);
         instance.lastUpdatedEnergy = new Date();
-        instance.save();
+        // instance.save();
       }
     }
   }
