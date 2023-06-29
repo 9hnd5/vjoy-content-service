@@ -40,7 +40,8 @@ export class KidLessonService extends BaseService<I18nTranslations> {
         const lesson = await this.lessonModel.findByPk(lessonId, {
           include: Unit,
         });
-        if (!lesson) throw new NotFoundException();
+        if (!lesson)
+          throw new NotFoundException({ code: ERROR_CODE.LESSON_NOT_FOUND, message: this.i18n.t("message.NOT_FOUND") });
 
         let kidLesson = await this.kidLessonModel.findOne({
           where: { lessonId, kidId },
@@ -120,7 +121,11 @@ export class KidLessonService extends BaseService<I18nTranslations> {
     const lesson = await this.lessonModel.findByPk(lessonId, {
       include: Unit,
     });
-    if (!lesson) throw new NotFoundException();
+    if (!lesson)
+      throw new NotFoundException({
+        code: ERROR_CODE.LESSON_NOT_FOUND,
+        message: this.i18n.t("message.NOT_FOUND", { args: { data: `Lesson(${lessonId})` } }),
+      });
 
     const levelId = lesson.unit.levelId;
     const unitId = lesson.unitId;
@@ -129,7 +134,7 @@ export class KidLessonService extends BaseService<I18nTranslations> {
     if (!existKidData)
       throw new NotFoundException({
         code: ERROR_CODE.USER_NOT_FOUND,
-        message: this.i18n.t("message.NOT_FOUND", { args: { data: kidId } }),
+        message: this.i18n.t("message.NOT_FOUND", { args: { data: `kid(${kidId})` } }),
       });
 
     const gamerule = await this.gameRuleModel.findOne({ where: { levelId, type } });

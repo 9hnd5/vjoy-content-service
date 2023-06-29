@@ -12,26 +12,26 @@ export class KidDataController {
 
   @Authorize({ resource: "kid-learning-data", action: "create" })
   @Post("kid-data")
-  createKidData(@Body() data: CreateKidDataDto) {
+  async createKidData(@Body() data: CreateKidDataDto) {
     return this.kidDataService.create(data);
   }
 
   @Authorize({ resource: "kid-learning-data", action: "update" })
   @Patch("kid-data/:kidId")
-  updateKidData(@Param("kidId") kidId: number, @Body() data: UpdateKidDataDto) {
+  async updateKidData(@Param("kidId") kidId: number, @Body() data: UpdateKidDataDto) {
     return this.kidDataService.update(kidId, data);
-  }
-
-  @Authorize({ resource: "kid-learning-data", action: "create" })
-  @Post("kid-learning-data")
-  createKidData2(@Body() data: CreateKidDataDto) {
-    return this.kidDataService.create(data);
   }
 
   @Authorize({ resource: "kid-learning-data", action: "read" })
   @Get("kid-data/:kidId/energy")
   async getKidDataEnergy(@Param("kidId") kidId: number) {
     return this.kidDataService.getEnergy(kidId);
+  }
+
+  @Authorize({ resource: "kid-learning-data", action: "update" })
+  @Post("kid-data/:kidId/energy")
+  async buyKidDataEnergy(@Param("kidId") kidId: number) {
+    return this.kidDataService.buyEnergy(kidId);
   }
 
   @Authorize({ resource: "kid-learning-data", action: "read" })
@@ -42,7 +42,7 @@ export class KidDataController {
 
   @Authorize({ resource: "kid-learning-data", action: "read" })
   @Get("kid-data")
-  getKidData() {
+  async getKidData() {
     return this.kidDataService.getDataByUser();
   }
 }
