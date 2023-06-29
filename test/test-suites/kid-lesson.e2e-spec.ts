@@ -184,6 +184,21 @@ describe("Kid Lesson E2E", () => {
         });
     });
 
+    it("should success create kid-lesson with the lastest difficulty = 3 ", () => {
+      return agent
+        .post(`${API_CONTENT_PREFIX}/kid-lessons/${result.kidId}`)
+        .send({ ...data, difficulty: 3 })
+        .expect((res) => {
+          const rs = res.body.data;
+
+          expect(rs.id).not.toBeNull();
+          expect(rs.unitId).not.toBeNull();
+          expect(rs.star).not.toBeNull();
+
+          result2 = rs;
+        });
+    });
+
     it("should fail create kid-lesson due to try to created with exists difficulty = 1 ", () => {
       return agent
         .post(`${API_CONTENT_PREFIX}/kid-lessons/${result.kidId}`)

@@ -84,19 +84,21 @@ export class KidLessonService extends BaseService<I18nTranslations> {
             });
           }
         } else {
-          if (difficulty <= kidLesson.star)
+          if (difficulty < kidLesson.star) {
             throw new BadRequestException({
               code: ERROR_CODE.INVALID_DIFFICULTY,
               message: this.i18n.t("kid-lesson.INVALID_DIFFICULTY"),
             });
+          }
 
-          if (difficulty - kidLesson.star >= 2)
+          if (difficulty - kidLesson.star >= 2) {
             throw new BadRequestException({
               code: ERROR_CODE.INVALID_DIFFICULTY,
               message: this.i18n.t("kid-lesson.INVALID_DIFFICULTY"),
             });
+          }
 
-          kidLesson.star += 1;
+          kidLesson.star = Math.min(kidLesson.star + 1, 3);
         }
 
         await kidData.save(transactionHost);
