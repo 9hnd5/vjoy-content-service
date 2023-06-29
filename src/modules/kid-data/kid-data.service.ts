@@ -3,14 +3,13 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import { InjectModel } from "@nestjs/sequelize";
 import dayjs from "dayjs";
 import isToday from "dayjs/plugin/isToday";
-import { KidData } from "entities/kid-data.entity";
+import { KidData, COST_COIN, ENERGY_BUY_WITH_COIN, ENERGY_PER_MINUTE, MAX_ENERGY } from "entities/kid-data.entity";
 import { KidLesson } from "entities/kid-lesson.entity";
 import { Level } from "entities/level.entity";
 import { I18nTranslations } from "i18n/i18n.generated";
 import { Sequelize } from "sequelize-typescript";
 import { CreateKidDataDto } from "./dto/create-kid-data.dto";
 import { UpdateKidDataDto } from "./dto/update-kid-data.dto";
-import { COST_COIN, ENERGY_BUY_WITH_COIN, ENERGY_PER_MINUTE, MAX_ENERGY } from "./kid-data.constants";
 dayjs.extend(isToday);
 
 @Injectable()
@@ -33,15 +32,15 @@ export class KidDataService extends BaseService<I18nTranslations> {
         const parent = await this.userModel.findByPk(parentId);
         if (!parent)
           throw new NotFoundException({
-            code: ERROR_CODE.LEVEL_NOT_FOUND,
+            code: ERROR_CODE.USER_NOT_FOUND,
             message: this.i18n.t("message.NOT_FOUND", { args: { data: "Parent" } }),
           });
 
         const currentLevel = await this.levelModel.findByPk(currentLevelId, { transaction: t });
         if (!currentLevel)
           throw new NotFoundException({
-            code: ERROR_CODE.USER_NOT_FOUND,
-            message: this.i18n.t("message.NOT_FOUND", { args: { data: "Parent" } }),
+            code: ERROR_CODE.LEVEL_NOT_FOUND,
+            message: this.i18n.t("message.NOT_FOUND", { args: { data: "CurrentLevel" } }),
           });
 
         const kid = await this.userModel.create(
@@ -88,65 +87,67 @@ export class KidDataService extends BaseService<I18nTranslations> {
   }
 
   async getEnergy(kidId: number) {
-    const existKidLearningData = await this.kidDataModel.findByPk(kidId);
+    const existKidData = await this.kidDataModel.findByPk(kidId);
 
-    if (!existKidLearningData)
-      throw new NotFoundException(
-        { code: ERROR_CODE.USER_NOT_FOUND },
-        this.i18n.t("message.NOT_FOUND", { args: { data: kidId } })
-      );
-
-    return {
-      energy: existKidLearningData.energy,
-    };
-  }
-
-  async getStar(kidId: number) {
-    const existKidLearningData = await this.kidDataModel.findByPk(kidId, { include: [KidLesson] });
-
-    if (!existKidLearningData)
+    if (!existKidData)
       throw new NotFoundException({
         code: ERROR_CODE.USER_NOT_FOUND,
         message: this.i18n.t("message.NOT_FOUND", { args: { data: kidId } }),
       });
 
     return {
-      star: existKidLearningData.kidLessons.reduce((prev, curr) => {
+      energy: existKidData.energy,
+    };
+  }
+
+  async getStar(kidId: number) {
+    const existKidData = await this.kidDataModel.findByPk(kidId, { include: [KidLesson] });
+
+    if (!existKidData)
+      throw new NotFoundException({
+        code: ERROR_CODE.USER_NOT_FOUND,
+        message: this.i18n.t("message.NOT_FOUND", { args: { data: kidId } }),
+      });
+
+    return {
+      star: existKidData.kidLessons.reduce((prev, curr) => {
         return prev + curr.star;
       }, 0),
     };
   }
 
   async buyEnergy(kidId: number) {
-    const existKidLearningData = await this.kidDataModel.findByPk(kidId);
-    if (!existKidLearningData)
-      throw new NotFoundException(
-        { code: ERROR_CODE.USER_NOT_FOUND },
-        this.i18n.t("message.NOT_FOUND", { args: { data: kidId } })
-      );
+    const existKidData = await this.kidDataModel.findByPk(kidId);
+    if (!existKidData)
+      throw new NotFoundException({
+        code: ERROR_CODE.USER_NOT_FOUND,
+        message: this.i18n.t("message.NOT_FOUND", { args: { data: `Kid(${kidId})` } }),
+      });
     let coinCost = 0;
 
-    if (dayjs(existKidLearningData.lastBoughtEnergy).isToday()) {
-      if (existKidLearningData.countBuyEnergy === 0) coinCost = COST_COIN.FIRST_TIME;
-      else if (existKidLearningData.countBuyEnergy === 1) coinCost = COST_COIN.SECOND_TIME;
+    if (dayjs(existKidData.lastBoughtEnergy).isToday()) {
+      if (existKidData.countBuyEnergy === 0) coinCost = COST_COIN.FIRST_TIME;
+      else if (existKidData.countBuyEnergy === 1) coinCost = COST_COIN.SECOND_TIME;
       else coinCost = COST_COIN.THIRTH_TIME;
-      existKidLearningData.countBuyEnergy += 1;
+      existKidData.countBuyEnergy += 1;
     } else {
       coinCost = COST_COIN.FIRST_TIME;
-      existKidLearningData.countBuyEnergy = 1;
+      existKidData.countBuyEnergy = 1;
     }
 
-    if (coinCost > existKidLearningData.coin)
+    if (coinCost > existKidData.coin)
       throw new BadRequestException({
         code: ERROR_CODE.NOT_ENOUGH_COIN,
         message: this.i18n.t("kid-data.NOT_ENOUGH_COIN"),
       });
 
-    existKidLearningData.coin -= coinCost;
-    existKidLearningData.lastBoughtEnergy = new Date();
-    existKidLearningData.energy += ENERGY_BUY_WITH_COIN;
+    const newEnergy = existKidData.energy + ENERGY_BUY_WITH_COIN;
 
-    return existKidLearningData.save();
+    existKidData.coin -= coinCost;
+    existKidData.lastBoughtEnergy = new Date();
+    existKidData.energy = newEnergy <= 120 ? newEnergy : MAX_ENERGY;
+
+    return existKidData.save();
   }
 
   async updateEnergy(id: number, energy?: number) {

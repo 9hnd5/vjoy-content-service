@@ -1,8 +1,8 @@
-import { IsIn, IsNotEmpty, IsString } from "class-validator";
+import { IsIn, IsNotEmpty, MaxLength } from "class-validator";
 
 export class StartKidLessonDto {
+  @MaxLength(255)
   @IsNotEmpty()
-  @IsString()
   lessonId: string;
 
   @IsIn(["lesson", "challenge"])
